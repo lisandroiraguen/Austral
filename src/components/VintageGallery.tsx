@@ -19,9 +19,58 @@ const VintageGallery: React.FC = () => {
                         {t.aboutTitle}
                     </h2>
 
-                    <p className="font-synth text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed">
+                    <p className="font-synth text-lg text-gray-300 max-w-3xl mx-auto leading-relaxed mb-12">
                         {t.aboutDescription}
                     </p>
+
+                    {/* History Section */}
+                    <div className="mt-16 mb-20">
+                        <h3 className="font-synth text-2xl md:text-3xl text-neon-yellow text-center mb-8
+                             text-glow-yellow uppercase">
+                            {t.historyTitle}
+                        </h3>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                            <div className="bg-retro-purple/20 p-6 rounded-lg border border-neon-magenta/30 hover:border-neon-magenta transition-colors">
+                                <p className="font-synth text-gray-300 leading-relaxed">
+                                    {t.historyContent1}
+                                </p>
+                            </div>
+                            <div className="bg-retro-purple/20 p-6 rounded-lg border border-neon-cyan/30 hover:border-neon-cyan transition-colors">
+                                <p className="font-synth text-gray-300 leading-relaxed">
+                                    {t.historyContent2}
+                                </p>
+                            </div>
+                            <div className="bg-retro-purple/20 p-6 rounded-lg border border-neon-yellow/30 hover:border-neon-yellow transition-colors">
+                                <p className="font-synth text-gray-300 leading-relaxed">
+                                    {t.historyContent3}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Full Set Image */}
+                <div className="mb-20">
+                    <div className="relative group max-w-4xl mx-auto">
+                        <div className="absolute inset-0 bg-gradient-to-r from-neon-magenta via-neon-purple to-neon-cyan
+                            opacity-20 blur-2xl group-hover:opacity-40 transition-opacity duration-500" />
+
+                        <div className="relative bg-retro-purple/30 backdrop-blur-sm border-2 border-neon-purple
+                            rounded-xl p-2 hover:border-neon-magenta transition-all duration-300">
+                            <div className="aspect-video bg-gray-900 rounded-lg overflow-hidden relative">
+                                <img
+                                    src="/images/austral-full-set.png"
+                                    alt={t.fullSetTitle}
+                                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                />
+                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                                    <h4 className="font-display text-xl text-neon-yellow mb-2">{t.fullSetTitle}</h4>
+                                    <p className="font-synth text-sm text-gray-300">{t.fullSetDescription}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Vintage Gallery */}

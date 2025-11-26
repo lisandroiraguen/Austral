@@ -25,8 +25,17 @@ const translations: Translations = {
         // About Section
         aboutTitle: 'About Austral',
         aboutDescription: 'The Austral was the currency of Argentina between 1985 and 1991. It replaced the peso argentino at a rate of 1 austral = 1000 pesos. Now, we bring this iconic currency back to life as a Cardano token, preserving its legacy in the blockchain era.',
+
+        // History Section
+        historyTitle: 'The Rise and Fall',
+        historyContent1: 'Launched in June 1985 by President Raúl Alfonsín, the Plan Austral was a bold attempt to stabilize the Argentine economy. It introduced a new currency, the Austral, replacing the peso argentino with three zeros removed. Initially, the plan succeeded in curbing inflation and bringing hope to the nation.',
+        historyContent2: 'However, by the late 1980s, the initial success faded. Fiscal deficits and external pressures led to a resurgence of inflation, culminating in the hyperinflation of 1989 and 1990. The Austral lost its value rapidly, with banknotes reaching denominations of 500,000 australs.',
+        historyContent3: 'In 1991, the Austral was replaced by the Peso Convertible at a rate of 10,000 australs to 1 peso, marking the end of a turbulent but unforgettable chapter in Argentine economic history.',
+
         vintageTitle: 'Vintage Collection',
         vintageDescription: 'Explore authentic Austral banknotes and coins from the 1980s',
+        fullSetTitle: 'Complete Collection',
+        fullSetDescription: 'A rare glimpse into the full spectrum of Austral currency, from the 1 centavo coin to the 500,000 austral banknote.',
 
         // Footer
         footerText: '© 2025 Austral Token. Built on Cardano.',
@@ -59,8 +68,17 @@ const translations: Translations = {
         // About Section
         aboutTitle: 'Sobre Austral',
         aboutDescription: 'El Austral fue la moneda de Argentina entre 1985 y 1991. Reemplazó al peso argentino a una tasa de 1 austral = 1000 pesos. Ahora, traemos de vuelta esta icónica moneda como un token de Cardano, preservando su legado en la era blockchain.',
+
+        // History Section
+        historyTitle: 'El Auge y la Caída',
+        historyContent1: 'Lanzado en junio de 1985 por el presidente Raúl Alfonsín, el Plan Austral fue un intento audaz de estabilizar la economía argentina. Introdujo una nueva moneda, el Austral, reemplazando al peso argentino con la quita de tres ceros. Inicialmente, el plan logró frenar la inflación y traer esperanza a la nación.',
+        historyContent2: 'Sin embargo, a fines de la década de 1980, el éxito inicial se desvaneció. Los déficits fiscales y las presiones externas llevaron a un resurgimiento de la inflación, culminando en la hiperinflación de 1989 y 1990. El Austral perdió su valor rápidamente, con billetes que alcanzaron denominaciones de 500.000 australes.',
+        historyContent3: 'En 1991, el Austral fue reemplazado por el Peso Convertible a una tasa de 10.000 australes por 1 peso, marcando el fin de un capítulo turbulento pero inolvidable en la historia económica argentina.',
+
         vintageTitle: 'Colección Vintage',
         vintageDescription: 'Explora billetes y monedas auténticas del Austral de los años 80',
+        fullSetTitle: 'Colección Completa',
+        fullSetDescription: 'Un vistazo único a la gama completa de la moneda Austral, desde la moneda de 1 centavo hasta el billete de 500.000 australes.',
 
         // Footer
         footerText: '© 2025 Austral Token. Construido en Cardano.',

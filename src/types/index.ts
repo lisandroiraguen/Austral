@@ -41,8 +41,17 @@ export interface TranslationKeys {
     // About Section
     aboutTitle: string;
     aboutDescription: string;
+
+    // History Section
+    historyTitle: string;
+    historyContent1: string;
+    historyContent2: string;
+    historyContent3: string;
+
     vintageTitle: string;
     vintageDescription: string;
+    fullSetTitle: string;
+    fullSetDescription: string;
 
     // Footer
     footerText: string;
