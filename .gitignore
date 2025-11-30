@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+MintingScript/.env
+/MintingScript/bin
+/MintingScript/obj
+MintingScript/tx.cbor
