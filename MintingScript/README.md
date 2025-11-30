@@ -1,8 +1,10 @@
 # Austral Token Minting Script
 
 A .NET console application designed to mint native assets (tokens) on the Cardano blockchain using [CardanoSharp](https://github.com/CardanoSharp/cardanosharp-wallet) and [Blockfrost](https://blockfrost.io/).
-
 This tool was built to mint the **Australes** token but can be configured to mint any custom token.
+
+
+https://preview.cardanoscan.io/transaction/8963d6df648a3081c8bc2f01b81fed14091b8e815efc6c63e7c249edeb6ac877
 
 ## Features
 
