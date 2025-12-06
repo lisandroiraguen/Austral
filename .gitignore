@@ -26,3 +26,4 @@ MintingScript/.env
 /MintingScript/bin
 /MintingScript/obj
 MintingScript/tx.cbor
+StakingContract/plutus.json
