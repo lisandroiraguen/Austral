@@ -27,3 +27,6 @@ MintingScript/.env
 /MintingScript/obj
 MintingScript/tx.cbor
 StakingContract/plutus.json
+/StakingContracDeploy/bin
+/StakingContracDeploy/obj
+StakingContracDeploy/.env
