@@ -22,7 +22,7 @@ const test_token_name: AssetName = "TEST"
 
 // Helper to calculate milliseconds for months (approximate: 30 days)
 fn months_to_millis(months: Int) -> Int {
-  months * 30 * 24 * 60 * 60 * 1000
+  months * 5 * 60 * 1000
 }
 
 validator staking {

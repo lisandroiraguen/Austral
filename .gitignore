@@ -30,3 +30,5 @@ StakingContract/plutus.json
 /StakingContracDeploy/bin
 /StakingContracDeploy/obj
 StakingContracDeploy/.env
+StakingContracDeploy/lucid-staking/.env
+StakingContracDeploy/plutus.json
