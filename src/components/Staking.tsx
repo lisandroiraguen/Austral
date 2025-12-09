@@ -229,7 +229,7 @@ const Staking: React.FC = () => {
                                                 {t.estimatedReward}
                                             </span>
                                             <span className="font-display text-xl text-neon-magenta text-glow-magenta">
-                                                +{calculateReward()} ADA
+                                                +{calculateReward()} ₳
                                             </span>
                                         </div>
                                     </div>
