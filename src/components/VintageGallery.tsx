@@ -47,6 +47,26 @@ const VintageGallery: React.FC = () => {
                                 </p>
                             </div>
                         </div>
+
+                        {/* YouTube Video */}
+                        <div className="mt-12 max-w-3xl mx-auto">
+                            <div className="relative group">
+                                <div className="absolute inset-0 bg-gradient-to-r from-neon-magenta to-neon-cyan 
+                                    opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-300" />
+                                <div className="relative bg-retro-purple/30 backdrop-blur-sm border-2 border-neon-magenta
+                                    rounded-xl p-2 hover:border-neon-cyan transition-all duration-300">
+                                    <div className="aspect-video rounded-lg overflow-hidden">
+                                        <iframe
+                                            src="https://www.youtube.com/embed/bhJx8s5TqMk"
+                                            title="Historia del Austral"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                            className="w-full h-full"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
