@@ -18,17 +18,45 @@ const WalletConnect: React.FC = () => {
         try {
             const walletName = localStorage.getItem('austral-wallet');
             if (walletName) {
-                await connectWallet(walletName);
+                // Check if wallet is still installed
+                const installedWallets = BrowserWallet.getInstalledWallets();
+                const walletStillInstalled = installedWallets.some(
+                    w => w.name.toLowerCase() === walletName.toLowerCase()
+                );
+
+                if (!walletStillInstalled) {
+                    localStorage.removeItem('austral-wallet');
+                    return;
+                }
+
+                // Try to silently reconnect (don't show loading for auto-reconnect)
+                try {
+                    const browserWallet = await BrowserWallet.enable(walletName);
+                    const walletAddress = await browserWallet.getChangeAddress();
+                    setAddress(walletAddress);
+                    setConnected(true);
+                    window.dispatchEvent(new CustomEvent('wallet-connected', { detail: { walletName } }));
+                } catch {
+                    // If auto-reconnect fails, clear stale data
+                    localStorage.removeItem('austral-wallet');
+                }
             }
         } catch (error) {
             console.error('Failed to restore wallet connection:', error);
+            localStorage.removeItem('austral-wallet');
         }
     };
 
     const connectWallet = async (walletName: string = 'eternl') => {
         setLoading(true);
         try {
-            const browserWallet = await BrowserWallet.enable(walletName);
+            // Add timeout to prevent infinite loading
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Connection timeout')), 30000);
+            });
+
+            const enablePromise = BrowserWallet.enable(walletName);
+            const browserWallet = await Promise.race([enablePromise, timeoutPromise]) as Awaited<ReturnType<typeof BrowserWallet.enable>>;
 
             const walletAddress = await browserWallet.getChangeAddress();
             setAddress(walletAddress);
@@ -36,9 +64,21 @@ const WalletConnect: React.FC = () => {
 
             // Save wallet preference
             localStorage.setItem('austral-wallet', walletName);
+
+            // Dispatch event to notify other components
+            window.dispatchEvent(new CustomEvent('wallet-connected', { detail: { walletName } }));
         } catch (error) {
             console.error('Failed to connect wallet:', error);
-            alert(t.walletError);
+            // Clear any stale wallet data
+            localStorage.removeItem('austral-wallet');
+            setConnected(false);
+            setAddress(null);
+
+            if (error instanceof Error && error.message === 'Connection timeout') {
+                alert('Conexión timeout. Asegurate de que la wallet esté desbloqueada.');
+            } else {
+                alert(t.walletError);
+            }
         } finally {
             setLoading(false);
         }
@@ -48,6 +88,9 @@ const WalletConnect: React.FC = () => {
         setAddress(null);
         setConnected(false);
         localStorage.removeItem('austral-wallet');
+
+        // Dispatch event to notify other components
+        window.dispatchEvent(new CustomEvent('wallet-disconnected'));
     };
 
     const handleConnect = async () => {

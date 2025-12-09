@@ -45,6 +45,24 @@ const translations: Translations = {
         walletConnected: 'Connected',
         walletError: 'Failed to connect wallet',
         selectWallet: 'Select a wallet to connect',
+
+        // Staking
+        stakingTitle: 'ADA Staking',
+        stakingDescription: 'Stake your ADA and earn rewards. The longer you stake, the higher your APY.',
+        stakeADA: 'Stake ADA',
+        connectToStake: 'Connect your wallet to start staking',
+        availableBalance: 'Available Balance',
+        stakeAmount: 'Amount to Stake',
+        stakeDuration: 'Select Duration',
+        month: 'Month',
+        months: 'Months',
+        estimatedReward: 'Estimated Reward',
+        staking: 'Staking...',
+        stakeNow: 'Stake Now',
+        stakingRewards: 'Staking Rewards',
+        lockPeriod: 'Lock Period',
+        stakingNote: 'Important',
+        stakingNoteDescription: 'Your ADA will be locked for the selected duration. Rewards will be distributed at the end of the staking period.',
     },
     es: {
         // Navigation
@@ -88,6 +106,24 @@ const translations: Translations = {
         walletConnected: 'Conectado',
         walletError: 'Error al conectar billetera',
         selectWallet: 'Selecciona una billetera para conectar',
+
+        // Staking
+        stakingTitle: 'Staking de ADA',
+        stakingDescription: 'Stakea tu ADA y gana recompensas. Cuanto más tiempo stakees, mayor será tu APY.',
+        stakeADA: 'Stakear ADA',
+        connectToStake: 'Conecta tu billetera para comenzar a stakear',
+        availableBalance: 'Balance Disponible',
+        stakeAmount: 'Cantidad a Stakear',
+        stakeDuration: 'Seleccionar Duración',
+        month: 'Mes',
+        months: 'Meses',
+        estimatedReward: 'Recompensa Estimada',
+        staking: 'Stakeando...',
+        stakeNow: 'Stakear Ahora',
+        stakingRewards: 'Recompensas de Staking',
+        lockPeriod: 'Período de Bloqueo',
+        stakingNote: 'Importante',
+        stakingNoteDescription: 'Tu ADA estará bloqueado durante el período seleccionado. Las recompensas se distribuirán al final del período de staking.',
     },
 };
 

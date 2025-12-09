@@ -4,6 +4,7 @@ import LanguageSwitcher from './components/LanguageSwitcher';
 import WalletConnect from './components/WalletConnect';
 import Hero from './components/Hero';
 import TokenStats from './components/TokenStats';
+import Staking from './components/Staking';
 import VintageGallery from './components/VintageGallery';
 import Footer from './components/Footer';
 
@@ -40,6 +41,7 @@ function App() {
           <main className="pt-20">
             <Hero />
             <TokenStats />
+            <Staking />
             <VintageGallery />
           </main>
 

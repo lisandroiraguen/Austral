@@ -61,4 +61,22 @@ export interface TranslationKeys {
     walletConnected: string;
     walletError: string;
     selectWallet: string;
+
+    // Staking
+    stakingTitle: string;
+    stakingDescription: string;
+    stakeADA: string;
+    connectToStake: string;
+    availableBalance: string;
+    stakeAmount: string;
+    stakeDuration: string;
+    month: string;
+    months: string;
+    estimatedReward: string;
+    staking: string;
+    stakeNow: string;
+    stakingRewards: string;
+    lockPeriod: string;
+    stakingNote: string;
+    stakingNoteDescription: string;
 }
