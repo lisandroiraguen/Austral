@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUSTRAL Token - Whitepaper</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Righteous&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #0a0a0a 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(26, 0, 51, 0.5);
+            border: 2px solid #00FFFF;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-family: 'Righteous', cursive;
+            font-size: 3rem;
+            text-align: center;
+            background: linear-gradient(90deg, #00FFFF, #FF00FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 1rem;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            font-family: 'Righteous', cursive;
+            font-size: 1.8rem;
+            color: #00FFFF;
+            margin: 30px 0 15px;
+            border-bottom: 2px solid #00FFFF;
+            padding-bottom: 10px;
+        }
+
+        p {
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .highlight {
+            color: #39FF14;
+            font-weight: bold;
+        }
+
+        /* Pie Chart Container */
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 40px 0;
+            flex-wrap: wrap;
+            gap: 40px;
+        }
+
+        .pie-chart {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(#39FF14 0deg 324deg,
+                    /* 90% - Stakers */
+                    #FF6600 324deg 360deg
+                    /* 10% - Marketing/Mantenimiento */
+                );
+            position: relative;
+            box-shadow: 0 0 30px rgba(57, 255, 20, 0.3);
+        }
+
+        .pie-chart::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: #0a0a0a;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .pie-chart::after {
+            content: '₳';
+            position: absolute;
+            font-size: 2.5rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .legend-color {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+        }
+
+        .legend-color.stakers {
+            background: #39FF14;
+            box-shadow: 0 0 10px #39FF14;
+        }
+
+        .legend-color.marketing {
+            background: #FF6600;
+            box-shadow: 0 0 10px #FF6600;
+        }
+
+        .legend-text {
+            font-size: 1rem;
+        }
+
+        .legend-percent {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .legend-percent.green {
+            color: #39FF14;
+        }
+
+        .legend-percent.orange {
+            color: #FF6600;
+        }
+
+        .info-box {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid #00FFFF;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box h3 {
+            color: #00FFFF;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        li {
+            color: #ccc;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        li::before {
+            content: '◆';
+            color: #FF00FF;
+            position: absolute;
+            left: -20px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .version {
+            color: #FF00FF;
+        }
+
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .container {
+                background: white;
+                border-color: #333;
+                box-shadow: none;
+            }
+
+            h1 {
+                -webkit-text-fill-color: #333;
+            }
+
+            h2 {
+                color: #333;
+                border-color: #333;
+            }
+
+            p,
+            li {
+                color: #333;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>AUSTRAL TOKEN</h1>
+        <p class="subtitle">Whitepaper v1.0 - Diciembre 2025</p>
+
+        <h2>📖 Introducción</h2>
+        <p>
+            AUSTRAL es un token nativo de la blockchain de Cardano que revive la icónica moneda argentina de los años
+            80.
+            Nuestro objetivo es crear un ecosistema de staking justo y transparente donde los usuarios pueden
+            generar rendimientos pasivos mientras celebran la historia económica argentina.
+        </p>
+
+        <h2>📊 Distribución de Recompensas</h2>
+        <p>
+            El sistema de staking de AUSTRAL distribuye las recompensas de manera justa y transparente:
+        </p>
+
+        <div class="chart-container">
+            <div class="pie-chart"></div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color stakers"></div>
+                    <div>
+                        <div class="legend-percent green">90%</div>
+                        <div class="legend-text">Recompensas para Stakers</div>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color marketing"></div>
+                    <div>
+                        <div class="legend-percent orange">10%</div>
+                        <div class="legend-text">Marketing & Mantenimiento</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>💰 Uso del 10% - Marketing & Mantenimiento</h3>
+            <ul>
+                <li>Marketing y promoción del proyecto</li>
+                <li>Mantenimiento de la plataforma web</li>
+                <li>Costos de servidores e infraestructura</li>
+                <li>Desarrollo continuo y mejoras</li>
+                <li>Auditorías de seguridad</li>
+            </ul>
+        </div>
+
+        <h2>⏱️ Modalidades de Staking</h2>
+        <p>Ofrecemos diferentes períodos de staking con APY progresivo:</p>
+
+        <div class="info-box">
+            <ul>
+                <li><span class="highlight">Flexible:</span> 3.5% APY base - Sin bloqueo</li>
+                <li><span class="highlight">1 Mes:</span> 4.5% base + 0.2%/mes = 4.7% APY</li>
+                <li><span class="highlight">3 Meses:</span> 5.5% base + 0.3%/mes = 6.4% APY</li>
+                <li><span class="highlight">6 Meses:</span> 6.5% base + 0.4%/mes = 8.9% APY</li>
+                <li><span class="highlight">12 Meses:</span> 7.5% base + 0.5%/mes = 13.5% APY</li>
+            </ul>
+        </div>
+
+        <h2>🔒 Seguridad</h2>
+        <p>
+            Todos los contratos inteligentes de AUSTRAL están construidos en la blockchain de Cardano utilizando Plutus,
+            garantizando la máxima seguridad y descentralización. Los fondos están protegidos por
+            validadores on-chain que verifican cada transacción.
+        </p>
+
+        <h2>🚀 Roadmap</h2>
+        <div class="info-box">
+            <ul>
+                <li><span class="highlight">Q4 2025:</span> Lanzamiento del staking en testnet</li>
+                <li><span class="highlight">Q1 2026:</span> Auditoría de contratos y lanzamiento en mainnet</li>
+                <li><span class="highlight">Q2 2026:</span> Integración con DEXs de Cardano</li>
+                <li><span class="highlight">Q3 2026:</span> Gobernanza descentralizada</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>AUSTRAL Token © 2025 | Built on Cardano ₳</p>
+            <p class="version">Whitepaper v1.0</p>
+        </div>
+    </div>
+</body>
+
+</html>

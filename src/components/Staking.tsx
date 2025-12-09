@@ -169,7 +169,8 @@ const Staking: React.FC = () => {
                                                 onChange={(e) => setStakeAmount(e.target.value)}
                                                 placeholder="0.00"
                                                 className="w-full bg-retro-dark/60 border-2 border-neon-green/50
-                                                           rounded-lg px-4 py-3 text-white font-synth text-lg
+                                                           rounded-lg px-4 py-3 text-neon-cyan font-synth text-lg
+                                                           text-glow-cyan
                                                            focus:border-neon-green focus:outline-none
                                                            transition-colors duration-300"
                                             />
@@ -212,7 +213,7 @@ const Staking: React.FC = () => {
                                                             {realApy.toFixed(1)}% APY
                                                         </div>
                                                         {tier.bonusPerMonth > 0 && (
-                                                            <div className="text-xs text-neon-magenta mt-1">
+                                                            <div className="text-xs text-neon-yellow mt-1">
                                                                 +{tier.bonusPerMonth}%/{language === 'es' ? 'mes' : 'mo'}
                                                             </div>
                                                         )}

@@ -66,6 +66,29 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Tokenomics Info */}
+                <div className="mb-8 text-center p-6 bg-retro-purple/20 rounded-lg border border-neon-yellow/30">
+                    <h4 className="font-synth text-neon-yellow uppercase text-sm mb-3">
+                        📊 Distribución de Tokens
+                    </h4>
+                    <p className="font-synth text-sm text-gray-300 mb-4">
+                        El <span className="text-neon-green font-bold">10%</span> de las ganancias del staking
+                        se destina a marketing, mantenimiento de la plataforma y servidores.
+                    </p>
+                    <a
+                        href="/whitepaper.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-6 py-2 
+                                   font-synth text-sm uppercase
+                                   bg-neon-yellow/20 border border-neon-yellow text-neon-yellow
+                                   rounded-lg hover:bg-neon-yellow hover:text-retro-dark
+                                   transition-all duration-300"
+                    >
+                        📄 Ver Whitepaper
+                    </a>
+                </div>
+
                 {/* Copyright */}
                 <div className="text-center pt-8 border-t border-neon-cyan/20">
                     <p className="font-synth text-sm text-gray-500">
