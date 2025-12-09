@@ -133,7 +133,6 @@ const Staking: React.FC = () => {
                             rounded-lg p-8 hover:border-neon-cyan transition-all duration-300">
 
                             <h3 className="font-display text-2xl text-neon-green mb-6 flex items-center gap-3">
-                                <span className="text-3xl">₳</span>
                                 {t.stakeADA}
                             </h3>
 
@@ -153,7 +152,7 @@ const Staking: React.FC = () => {
                                             {t.availableBalance}
                                         </label>
                                         <div className="text-2xl font-display text-white text-glow-cyan">
-                                            {adaBalance} ₳
+                                            {adaBalance} ADA
                                         </div>
                                     </div>
 
@@ -230,7 +229,7 @@ const Staking: React.FC = () => {
                                                 {t.estimatedReward}
                                             </span>
                                             <span className="font-display text-xl text-neon-magenta text-glow-magenta">
-                                                +{calculateReward()} ₳
+                                                +{calculateReward()} ADA
                                             </span>
                                         </div>
                                     </div>

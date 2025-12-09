@@ -11,6 +11,24 @@ const TokenStats: React.FC = () => {
 
     useEffect(() => {
         checkWalletConnection();
+
+        // Listen for wallet connection events
+        const handleWalletConnected = () => {
+            checkWalletConnection();
+        };
+
+        const handleWalletDisconnected = () => {
+            setConnected(false);
+            setBalance('0');
+        };
+
+        window.addEventListener('wallet-connected', handleWalletConnected);
+        window.addEventListener('wallet-disconnected', handleWalletDisconnected);
+
+        return () => {
+            window.removeEventListener('wallet-connected', handleWalletConnected);
+            window.removeEventListener('wallet-disconnected', handleWalletDisconnected);
+        };
     }, []);
 
     const checkWalletConnection = async () => {
@@ -82,7 +100,7 @@ const TokenStats: React.FC = () => {
                             <div className="flex-1 flex items-center">
                                 {connected ? (
                                     <p className="font-display text-3xl text-white text-glow-cyan">
-                                        {formatTokenAmount(balance)} ₳
+                                        {formatTokenAmount(balance)} AUSTRAL
                                     </p>
                                 ) : (
                                     <p className="font-synth text-sm text-gray-400">
@@ -109,7 +127,7 @@ const TokenStats: React.FC = () => {
 
                             <div className="flex-1 flex items-center">
                                 <p className="font-display text-3xl text-white text-glow-magenta">
-                                    {formatTokenAmount(AUSTRAL_TOKEN.totalSupply)} ₳
+                                    {formatTokenAmount(AUSTRAL_TOKEN.totalSupply)} AUSTRAL
                                 </p>
                             </div>
                         </div>
