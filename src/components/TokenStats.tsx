@@ -100,7 +100,7 @@ const TokenStats: React.FC = () => {
                             <div className="flex-1 flex items-center">
                                 {connected ? (
                                     <p className="font-display text-3xl text-white text-glow-cyan">
-                                        {formatTokenAmount(balance)} AUSTRAL
+                                        {formatTokenAmount(balance)} ₳
                                     </p>
                                 ) : (
                                     <p className="font-synth text-sm text-gray-400">
@@ -127,7 +127,7 @@ const TokenStats: React.FC = () => {
 
                             <div className="flex-1 flex items-center">
                                 <p className="font-display text-3xl text-white text-glow-magenta">
-                                    {formatTokenAmount(AUSTRAL_TOKEN.totalSupply)} AUSTRAL
+                                    {formatTokenAmount(AUSTRAL_TOKEN.totalSupply)} ₳
                                 </p>
                             </div>
                         </div>

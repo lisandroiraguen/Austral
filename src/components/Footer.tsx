@@ -16,14 +16,15 @@ const Footer: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
                     {/* Logo/Brand */}
                     <div className="text-center md:text-left">
+                        <p className="font-synth text-sm text-gray-400 mb-4">
+                            Reviving the 80s
+                        </p>
                         <h3 className="font-display text-3xl font-bold mb-2
                            bg-gradient-to-r from-neon-cyan to-neon-magenta
                            bg-clip-text text-transparent">
                             AUSTRAL
                         </h3>
-                        <p className="font-synth text-sm text-gray-400">
-                            Reviving the 80s
-                        </p>
+
                     </div>
 
                     {/* Links */}
@@ -61,7 +62,7 @@ const Footer: React.FC = () => {
                             Built on
                         </h4>
                         <p className="font-display text-2xl text-white">
-                            Cardano ₳
+                            Cardano
                         </p>
                     </div>
                 </div>
