@@ -10,12 +10,42 @@ const Hero: React.FC = () => {
             {/* Animated gradient overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-retro-purple/20 to-retro-dark/80" />
 
-            {/* Floating geometric shapes */}
-            <div className="absolute top-20 left-10 w-32 h-32 border-4 border-neon-cyan/30 rotate-45 animate-float" />
-            <div className="absolute bottom-20 right-10 w-40 h-40 border-4 border-neon-magenta/30 rotate-12 animate-float"
-                style={{ animationDelay: '1s' }} />
-            <div className="absolute top-1/2 left-1/4 w-24 h-24 border-4 border-neon-yellow/30 -rotate-12 animate-float"
-                style={{ animationDelay: '2s' }} />
+            {/* Floating 80s Argentine Icons */}
+            <div className="absolute top-20 left-10 text-6xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#00FFFF] hover:scale-110 transition-transform cursor-default"
+                title="Pumper Nic">
+                🍔
+            </div>
+            <div className="absolute bottom-32 right-10 text-5xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#FF00FF]"
+                style={{ animationDelay: '0.5s' }}
+                title="Tele Retro">
+                📺
+            </div>
+            <div className="absolute top-1/3 left-[15%] text-5xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#FFFF00]"
+                style={{ animationDelay: '1s' }}
+                title="Cassette 80s">
+                📼
+            </div>
+            <div className="absolute top-40 right-[20%] text-5xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#39FF14]"
+                style={{ animationDelay: '1.5s' }}
+                title="Arcade">
+                🕹️
+            </div>
+            <div className="absolute bottom-40 left-[25%] text-4xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#FF1493]"
+                style={{ animationDelay: '2s' }}
+                title="Boombox">
+                📻
+            </div>
+            <div className="absolute top-[60%] right-[10%] text-4xl animate-float opacity-70
+                           drop-shadow-[0_0_15px_#00FFFF]"
+                style={{ animationDelay: '2.5s' }}
+                title="Disco">
+                🪩
+            </div>
 
             {/* Content */}
             <div className="relative z-10 max-w-6xl mx-auto px-6 py-20 text-center">
