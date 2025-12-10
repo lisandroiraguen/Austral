@@ -49,12 +49,22 @@ const TokenStats: React.FC = () => {
             const assets = await wallet.getAssets();
             const tokenUnit = `${AUSTRAL_TOKEN.policyId}${AUSTRAL_TOKEN.assetName}`;
 
+            // DEBUG: Log all assets and the token unit we're looking for
+            console.log('=== DEBUG: Wallet Assets ===');
+            console.log('Looking for tokenUnit:', tokenUnit);
+            console.log('All wallet assets:', assets);
+            assets.forEach(asset => {
+                console.log(`Asset: ${asset.unit} | Quantity: ${asset.quantity}`);
+            });
+
             // Find AUSTRAL token in wallet assets
             const australAsset = assets.find(asset => asset.unit === tokenUnit);
 
             if (australAsset) {
+                console.log('Found AUSTRAL asset:', australAsset);
                 setBalance(australAsset.quantity);
             } else {
+                console.log('AUSTRAL token not found in wallet');
                 setBalance('0');
             }
         } catch (error) {

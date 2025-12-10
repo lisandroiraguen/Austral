@@ -2,10 +2,10 @@ import type { TokenInfo } from '../types';
 
 // Placeholder token information - UPDATE THESE VALUES
 export const AUSTRAL_TOKEN: TokenInfo = {
-    policyId: '0000000000000000000000000000000000000000000000000000000000000000',
-    assetName: '4155535452414c', // "AUSTRAL" in hex
+    policyId: '9ea5cd066fda8431f52565159c426b1717c8ffc9d7a1fbcda62e3b5c',
+    assetName: '4175737472616c2d54657374', // "Austral-Test" in hex
     poolAddress: 'addr1_placeholder_pool_address_here',
-    totalSupply: '1000000000', // 1 billion tokens (placeholder)
+    totalSupply: '100000000', // 1 billion tokens (placeholder)
 };
 
 /**

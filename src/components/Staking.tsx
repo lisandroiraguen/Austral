@@ -223,12 +223,12 @@ const Staking: React.FC = () => {
                                     </div>
 
                                     {/* Estimated Reward */}
-                                    <div className="mb-6 p-4 bg-retro-dark/60 rounded-lg border border-neon-magenta/30">
+                                    <div className="mb-6 p-4 bg-retro-dark/60 rounded-lg border border-neon-yellow/30">
                                         <div className="flex justify-between items-center">
-                                            <span className="text-gray-400 font-synth text-sm uppercase">
+                                            <span className="text-neon-yellow font-synth text-sm uppercase">
                                                 {t.estimatedReward}
                                             </span>
-                                            <span className="font-display text-xl text-neon-magenta text-glow-magenta">
+                                            <span className="font-display text-xl text-neon-yellow text-glow-yellow">
                                                 +{calculateReward()} ₳
                                             </span>
                                         </div>
