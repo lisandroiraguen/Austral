@@ -20,4 +20,15 @@ https://happy-glacier-0d9820b0f.3.azurestaticapps.net
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Blockchain SDK**: [MeshSDK](https://meshjs.dev/)
+- **Smart Contracts**: [Aiken](https://aiken-lang.org/) (Plutus V3)
+
+## 💰 Staking Rewards
+
+| Duración | APY | Bonus |
+|----------|-----|-------|
+| Flexible | 3.5% | - |
+| 1 Mes | 4.7% | +0.2%/mes |
+| 3 Meses | 6.4% | +0.3%/mes |
+| 6 Meses | 8.9% | +0.4%/mes |
+| 12 Meses | 13.5% | +0.5%/mes |
 

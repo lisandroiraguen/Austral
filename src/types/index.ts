@@ -8,7 +8,6 @@ export interface WalletState {
 export interface TokenInfo {
     policyId: string;
     assetName: string;
-    poolAddress: string;
     totalSupply: string;
 }
 

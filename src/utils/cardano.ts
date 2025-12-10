@@ -4,9 +4,11 @@ import type { TokenInfo } from '../types';
 export const AUSTRAL_TOKEN: TokenInfo = {
     policyId: '9ea5cd066fda8431f52565159c426b1717c8ffc9d7a1fbcda62e3b5c',
     assetName: '4175737472616c2d54657374', // "Austral-Test" in hex
-    poolAddress: 'addr1_placeholder_pool_address_here',
     totalSupply: '100000000', // 1 billion tokens (placeholder)
 };
+
+// Dirección del smart contract de staking (se genera al desplegar el contrato)
+export const STAKING_CONTRACT_ADDRESS = 'addr_test1qzfspdp2s5rmecrusgawm7hpkm8qpdksxjtymxz2aa0yyd5lazyya790dh0xwfmcjyjjwc967z62wp8vmkza3pu8l0nq30pne3';
 
 /**
  * Format Cardano address for display (truncated)

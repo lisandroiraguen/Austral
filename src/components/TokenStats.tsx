@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserWallet } from '@meshsdk/core';
 import { useLanguage } from '../context/LanguageContext';
-import { AUSTRAL_TOKEN, formatTokenAmount, copyToClipboard, formatAddress } from '../utils/cardano';
+import { AUSTRAL_TOKEN, STAKING_CONTRACT_ADDRESS, formatTokenAmount, copyToClipboard, formatAddress } from '../utils/cardano';
 
 const TokenStats: React.FC = () => {
     const { t } = useLanguage();
@@ -74,7 +74,7 @@ const TokenStats: React.FC = () => {
     };
 
     const handleCopyAddress = async () => {
-        const success = await copyToClipboard(AUSTRAL_TOKEN.poolAddress);
+        const success = await copyToClipboard(STAKING_CONTRACT_ADDRESS);
         if (success) {
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
@@ -159,7 +159,7 @@ const TokenStats: React.FC = () => {
 
                             <div className="flex-1 flex flex-col justify-between">
                                 <p className="font-mono text-sm text-white mb-3 break-all">
-                                    {formatAddress(AUSTRAL_TOKEN.poolAddress)}
+                                    {formatAddress(STAKING_CONTRACT_ADDRESS)}
                                 </p>
 
                                 <button
