@@ -23,39 +23,37 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const BLOCKFROST_PROJECT_ID = process.env.BLOCKFROST_PROJECT_ID;
 const MNEMONIC = process.env.MNEMONIC;
-const SCRIPT_PATH = process.env.SCRIPT_PATH || "../../StakingContract/plutus.json";
 const NETWORK = process.env.NETWORK || "Preview";
+
+// Load Deploy Info
+const DEPLOY_INFO_PATH = path.join(__dirname, "deploy_info.json");
+if (!fs.existsSync(DEPLOY_INFO_PATH)) throw new Error("deploy_info.json not found. Run deploy.mjs first.");
+const DEPLOY_INFO = JSON.parse(fs.readFileSync(DEPLOY_INFO_PATH, "utf8"));
 
 const LOCK_AMOUNT = 1_000_000n; // 1 ADA
 const LOCK_MONTHS = 1n; // 5 minutes for testing
 
 // ========================================
-// LOAD SCRIPT
-// ========================================
-
-function loadPlutusScript() {
-    // Usar SCRIPT_PATH del .env o ruta por defecto
-    const plutusJsonPath = path.resolve(__dirname, SCRIPT_PATH);
-    console.log(`   Loading script from: ${plutusJsonPath}`);
-    const plutusJson = JSON.parse(fs.readFileSync(plutusJsonPath, "utf8"));
-    const validator = plutusJson.validators.find(v => v.title === "staking.staking.spend");
-
-    if (!validator) throw new Error("Validator not found");
-
-    return {
-        type: "PlutusV3",
-        script: validator.compiledCode,
-    };
-}
-
-// ========================================
 // DATUM SCHEMA
 // ========================================
 
-const StakingDatum = Data.Object({
-    owner: Data.Bytes(),
-    start_time: Data.Integer(),
-    lock_period_months: Data.Integer(),
+const Credential = Data.Enum([
+    Data.Object({ VerificationKey: Data.Object({ hash: Data.Bytes() }) }),
+    Data.Object({ Script: Data.Object({ hash: Data.Bytes() }) }),
+]);
+
+const Address = Data.Object({
+    payment_credential: Credential,
+    stake_credential: Data.Nullable(Credential),
+});
+
+const DepositDatum = Data.Object({
+    beneficiary: Address,
+    principal_lovelace: Data.Integer(),
+    reward_percent: Data.Integer(),
+    release_time: Data.Integer(),
+    reward_policy: Data.Bytes(),
+    reward_asset: Data.Bytes(),
 });
 
 // ========================================
@@ -83,32 +81,46 @@ async function lockFunds() {
     const walletAddress = await lucid.wallet().address();
     console.log(`   Address: ${walletAddress}`);
 
-    // Get owner PKH using standalone function
     const paymentCred = paymentCredentialOf(walletAddress);
     const ownerPkh = paymentCred.hash;
     console.log(`   Owner PKH: ${ownerPkh}`);
 
-    console.log("3. Loading script...");
-    const validator = loadPlutusScript();
-    const scriptHash = validatorToScriptHash(validator);
-    const scriptAddress = validatorToAddress("Preview", validator);
-    console.log(`   Script hash: ${scriptHash}`);
-    console.log(`   Script address: ${scriptAddress}`);
+    console.log("3. Loading Staking Contract...");
+    // We use the address from deploy_info to ensure we send to the right place.
+    const stakingAddress = DEPLOY_INFO.staking.address;
+    const stakingHash = DEPLOY_INFO.staking.hash;
+    console.log(`   Staking Address: ${stakingAddress}`);
+    console.log(`   Staking Hash:    ${stakingHash}`);
 
     console.log("4. Building datum...");
     const startTime = BigInt(Date.now());
-    const lockDurationMs = Number(LOCK_MONTHS) * 5 * 60 * 1000;
+    const lockDurationMs = Number(LOCK_MONTHS) * 5 * 60 * 1000; // Using 5 mins per "month" for testing
     const unlockTime = Number(startTime) + lockDurationMs;
 
-    const datum = Data.to({
-        owner: ownerPkh,
-        start_time: startTime,
-        lock_period_months: LOCK_MONTHS,
-    }, StakingDatum);
+    // Construct Address Object for Datum
+    const beneficiaryAddress = {
+        payment_credential: { VerificationKey: { hash: ownerPkh } },
+        stake_credential: null,
+    };
 
-    console.log(`   Start time: ${new Date(Number(startTime)).toLocaleString()}`);
-    console.log(`   Lock months: ${LOCK_MONTHS} (= ${lockDurationMs / 60000} minutes)`);
-    console.log(`   Unlock at: ${new Date(unlockTime).toLocaleString()}`);
+    // Token for Reward: Austral-Test
+    // Policy: 9ea5cd066fda8431f52565159c426b1717c8ffc9d7a1fbcda62e3b5c
+    // Name: 4175737472616c2d54657374 (Austral-Test)
+    const REWARD_POLICY = "9ea5cd066fda8431f52565159c426b1717c8ffc9d7a1fbcda62e3b5c";
+    const REWARD_ASSET_NAME = "4175737472616c2d54657374";
+
+    const datum = Data.to({
+        beneficiary: beneficiaryAddress,
+        principal_lovelace: LOCK_AMOUNT,
+        reward_percent: 10n, // 10% Reward
+        release_time: BigInt(unlockTime),
+        reward_policy: REWARD_POLICY,
+        reward_asset: REWARD_ASSET_NAME,
+    }, DepositDatum);
+
+    console.log(`   Release time: ${new Date(unlockTime).toLocaleString()}`);
+    console.log(`   Reward: 10% of ${Number(LOCK_AMOUNT) / 1000000} ADA`);
+    console.log(`   Reward Token: ${REWARD_POLICY.slice(0, 6)}...${REWARD_ASSET_NAME}`);
 
     console.log("5. Building transaction...");
     console.log(`   Locking ${Number(LOCK_AMOUNT) / 1_000_000} ADA...`);
@@ -116,7 +128,7 @@ async function lockFunds() {
     const tx = await lucid
         .newTx()
         .pay.ToContract(
-            scriptAddress,
+            stakingAddress,
             { kind: "inline", value: datum },
             { lovelace: LOCK_AMOUNT }
         )
@@ -136,13 +148,13 @@ async function lockFunds() {
     const state = {
         txHash: txHash,
         outputIndex: 0,
-        startTime: startTime.toString(), // Store as string to preserve BigInt details if needed, though JSON handles numbers
-        lockMonths: LOCK_MONTHS.toString(),
-        scriptAddress: scriptAddress
+        releaseTime: unlockTime,
+        ownerPkh: ownerPkh,
+        scriptAddress: stakingAddress
     };
 
     fs.writeFileSync(path.join(__dirname, "state.json"), JSON.stringify(state, null, 2));
-    console.log(`   State saved! You can now run 'node unlock.mjs' without manual edits.`);
+    console.log(`   State saved! You can now wait 5 minutes and run 'node unlock.mjs'.`);
 
     return txHash;
 }

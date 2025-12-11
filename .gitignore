@@ -32,3 +32,5 @@ StakingContract/plutus.json
 StakingContracDeploy/.env
 StakingContracDeploy/lucid-staking/.env
 StakingContracDeploy/plutus.json
+/MintingTokenScript/bin
+/MintingTokenScript/obj
