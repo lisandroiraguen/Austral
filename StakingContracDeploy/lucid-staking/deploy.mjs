@@ -35,7 +35,7 @@ function loadValidator(plutusJson, title) {
     const validator = plutusJson.validators.find(v => v.title === title);
     if (!validator) throw new Error(`Validator '${title}' not found in plutus.json`);
     return {
-        type: "PlutusV3",
+        type: "PlutusV2",
         script: validator.compiledCode,
     };
 }
@@ -70,6 +70,8 @@ async function deploy() {
     // 3. Derive Staking Contract
     console.log("\n--- Staking Validator ---");
     const stakingValidator = loadValidator(plutusJson, "staking.staking.spend");
+    if (stakingValidator) stakingValidator.type = "PlutusV3";
+
     const stakingHash = validatorToScriptHash(stakingValidator);
     const stakingAddress = validatorToAddress(NETWORK, stakingValidator);
 

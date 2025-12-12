@@ -7,8 +7,7 @@
         "unlock": "node unlock.mjs"
     },
     "dependencies": {
-        "@lucid-evolution/lucid": "^0.3.0",
-        "dotenv": "^16.3.1",
-        "lucid-cardano": "^0.10.7"
+        "@lucid-evolution/lucid": "^0.4.29",
+        "dotenv": "^16.3.1"
     }
 }
