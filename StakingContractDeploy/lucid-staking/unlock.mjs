@@ -9,6 +9,7 @@ import {
     Constr,
     Data,
     validatorToAddress,
+    validatorToScriptHash,
     paymentCredentialOf,
     applyParamsToScript,
     credentialToAddress,
@@ -161,23 +162,31 @@ async function unlockFunds() {
     const scripts = loadPlutusScripts();
 
     // Verify Staking Address
+    const stakingHash = validatorToScriptHash(scripts.staking);
     const stakingAddress = validatorToAddress(NETWORK, scripts.staking);
     console.log(`   Staking Address (Calculated): ${stakingAddress}`);
+    console.log(`   Staking Hash: ${stakingHash}`);
 
     // Treasury Address from Config
     const treasuryAddress = DEPLOY_INFO.treasury.address;
     const treasuryHash = DEPLOY_INFO.treasury.hash;
     console.log(`   Treasury Address (Config)   : ${treasuryAddress}`);
 
-    // We assume the local treasury compiled script matches the config hash.
-    // If not, we warn.
+
+    // Simple verification (No parameterization)
     if (scripts.treasury) {
-        // We'd need to parameterize it to check the hash, which is complex here.
-        // We'll trust the user knows what they are doing.
+        const calculatedTreasuryHash = validatorToScriptHash(scripts.treasury);
+        console.log(`   Calculated Treasury Hash: ${calculatedTreasuryHash}`);
+
+        if (calculatedTreasuryHash !== treasuryHash) {
+            console.warn("   ⚠️ WARNING: Calculated Treasury Hash does NOT match Config!");
+            console.warn(`      Expected: ${treasuryHash}`);
+            console.warn(`      Got:      ${calculatedTreasuryHash}`);
+        } else {
+            console.log("   ✅ Treasury Script matches deployment.");
+        }
     } else {
         console.log("   ⚠️ Treasury script not found in plutus.json! We cannot spend from it.");
-        // We can't proceed if we can't witness the treasury spend.
-        // Unless it's a Simple Script? But it's likely Plutus.
         throw new Error("Treasury Contract code missing from plutus.json");
     }
     console.log("\n4. Fetching Staking UTXO...");

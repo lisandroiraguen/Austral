@@ -1,5 +1,5 @@
 use aiken/collection/list
-use aiken/interval
+
 
 use cardano/address.{Address, Script, VerificationKey}
 use cardano/assets
@@ -21,14 +21,17 @@ pub type TreasuryRedeemer {
 
 validator treasury {
   spend(
-    _datum: Option<TreasuryDatum>,
+    datum_opt: Option<TreasuryDatum>,
     _redeemer: TreasuryRedeemer,
     _oref: transaction.OutputReference,
-    _tx: Transaction,
+    tx: Transaction,
   ) {
-    // Minimal validator: always succeeds
-    // Off-chain code handles all validation (time locks, signer checks, reward math)
-    True
+    // Validate Owner Signature
+    expect Some(datum) = datum_opt
+    let is_owner = list.has(tx.extra_signatories, datum.owner)
+
+    // TODO: Add check for Staking Validator presence if we want decentralized claims.
+    is_owner
   }
 }
 

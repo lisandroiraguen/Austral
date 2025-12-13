@@ -86,15 +86,13 @@ async function deploy() {
 
     try {
         const treasuryValidator = loadValidator(plutusJson, "treasury.treasury.spend");
-        const stakingHashParam = Data.to(stakingHash, Data.Bytes());
-        const parameterizedTreasuryScript = applyParamsToScript(treasuryValidator.script, [stakingHashParam]);
-        const parameterizedTreasuryValidator = { type: "PlutusV3", script: parameterizedTreasuryScript };
+        // Parameterization removed: treasury.ak is not parameterized.
+        treasuryValidator.type = "PlutusV3";
 
-        treasuryHash = validatorToScriptHash(parameterizedTreasuryValidator);
-        treasuryAddress = validatorToAddress(NETWORK, parameterizedTreasuryValidator);
+        treasuryHash = validatorToScriptHash(treasuryValidator);
+        treasuryAddress = validatorToAddress(NETWORK, treasuryValidator);
 
-        console.log(`Validator Title: treasury.treasury.spend (Parameterized)`);
-        console.log(`Linked to Staking Hash: ${stakingHash}`);
+        console.log(`Validator Title: treasury.treasury.spend`);
         console.log(`Script Hash:     ${treasuryHash}`);
         console.log(`Address:         ${treasuryAddress}`);
     } catch (e) {
