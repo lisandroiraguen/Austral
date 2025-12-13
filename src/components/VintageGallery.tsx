@@ -57,8 +57,9 @@ const VintageGallery: React.FC = () => {
                                     rounded-xl p-2 hover:border-neon-cyan transition-all duration-300">
                                     <div className="aspect-video rounded-lg overflow-hidden">
                                         <iframe
-                                            src="https://www.youtube.com/embed/bhJx8s5TqMk"
+                                            src={`https://www.youtube.com/embed/bhJx8s5TqMk?origin=${typeof window !== 'undefined' ? window.location.origin : ''}`}
                                             title="Historia del Austral"
+                                            referrerPolicy="strict-origin-when-cross-origin"
                                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                             allowFullScreen
                                             className="w-full h-full"
