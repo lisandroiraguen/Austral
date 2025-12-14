@@ -4,7 +4,8 @@ import {
     Lucid,
     Data,
     Constr,
-    paymentCredentialOf
+    paymentCredentialOf,
+    credentialToAddress
 } from "@lucid-evolution/lucid";
 import * as fs from "fs";
 import * as path from "path";
@@ -74,16 +75,24 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         // Find UTXO to refund
         const utxos = await lucid.utxosAt(STAKING_ADDRESS);
 
-        // Define Datum Schema to parse (to filter by owner)
-        const DepositDatum = Data.Object({
-            beneficiary: Data.Object({
-                payment_credential: Data.Object({
-                    verification_key: Data.Bytes(),
-                }),
-                stake_credential: Data.Nullable(Data.Object({ // Handling Option/Maybe
-                    verification_key: Data.Bytes(),
-                })),
-            }),
+        // Address strictness fix:
+        const beneficiaryAddress = credentialToAddress(network, paymentCred);
+        context.log("Paying Refund to:", beneficiaryAddress);
+
+        // Also fix Datum Schema (for finding utxo properly)
+        // Must match CreateStakeTx structure
+        const Credential = Data.Enum([
+            Data.Object({ VerificationKey: Data.Object({ hash: Data.Bytes() }) }),
+            Data.Object({ Script: Data.Object({ hash: Data.Bytes() }) }),
+        ]);
+
+        const Address = Data.Object({
+            payment_credential: Credential,
+            stake_credential: Data.Nullable(Credential),
+        });
+
+        const StakingDatum = Data.Object({
+            beneficiary: Address,
             principal_lovelace: Data.Integer(),
             reward_percent: Data.Integer(),
             release_time: Data.Integer(),
@@ -94,31 +103,26 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         const myUtxo = utxos.find(u => {
             if (!u.datum) return false;
             try {
-                const datum = Data.from(u.datum, DepositDatum);
-                // Check if verification_key matches ownerPkh
-                // Note: verification_key is bytes, ownerPkh is string (hex). 
-                // We need to compare correctly.
-                return datum.beneficiary.payment_credential.verification_key === ownerPkh;
-            } catch (e) {
-                return false;
-            }
+                const datum = Data.from(u.datum, StakingDatum) as any;
+                const pkh = datum.beneficiary.payment_credential.VerificationKey?.hash;
+                return pkh === ownerPkh;
+            } catch (e) { return false; }
         });
 
         if (!myUtxo) {
-            context.res = {
-                status: 404,
-                body: "No active stake found to withdraw."
-            };
+            context.res = { status: 404, body: "No active stake found." };
             return;
         }
 
-        // Redeemer: Refund (Index 1)
         const refundRedeemer = Data.to(new Constr(1, []));
+        const principal = BigInt(Data.from(myUtxo.datum!, StakingDatum).principal_lovelace as any);
 
         const tx = await lucid.newTx()
             .collectFrom([myUtxo], refundRedeemer)
             .attach.SpendingValidator(script as any)
-            .addSigner(bech32Address) // Required by contract
+            .addSigner(bech32Address)
+            // Refund MUST pay strictly to the beneficiary defined in datum
+            .pay.ToAddress(beneficiaryAddress, { lovelace: principal })
             .complete();
 
         const partialTx = tx.toCBOR();

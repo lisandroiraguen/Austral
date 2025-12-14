@@ -214,7 +214,14 @@ const Staking: React.FC = () => {
             setStakeAmount(''); // Reset amount
 
             // Refresh Active Stake after success
-            await checkActiveStake(wallet);
+            // await checkActiveStake(wallet);
+
+            // Optimistic Update: Show "Staking in Progress" immediately
+            setActiveStake({
+                principalAda: parseFloat(stakeAmount),
+                releaseTime: unlockTime,
+                isLocked: true
+            });
 
         } catch (error: any) {
             console.error('Staking failed:', error);
@@ -458,17 +465,19 @@ const Staking: React.FC = () => {
                                                 </button>
                                             )}
 
-                                            {/* EARLY WITHDRAW BUTTON */}
-                                            <button
-                                                onClick={handleWithdraw}
-                                                disabled={isStaking}
-                                                className="w-full py-2 px-4 border border-red-500/50 text-red-400 
-                                                           rounded hover:bg-red-500/10 hover:text-red-300 hover:border-red-400
-                                                           transition-all duration-300 font-synth text-sm uppercase
-                                                           disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                {language === 'es' ? 'Retirar sin Recompensa' : 'Withdraw (No Reward)'}
-                                            </button>
+                                            {/* EARLY WITHDRAW BUTTON (Only if Locked) */}
+                                            {activeStake.isLocked && (
+                                                <button
+                                                    onClick={handleWithdraw}
+                                                    disabled={isStaking}
+                                                    className="w-full py-2 px-4 border border-red-500/50 text-red-400 
+                                                               rounded hover:bg-red-500/10 hover:text-red-300 hover:border-red-400
+                                                               transition-all duration-300 font-synth text-sm uppercase
+                                                               disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {language === 'es' ? 'Retirar sin Recompensa' : 'Withdraw (No Reward)'}
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
