@@ -80,9 +80,8 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         // Calculate Release Time (Testing: 5 mins per month, Flex = 0)
         // If Flexible, Release Time is technically 0 or StartTime (doesn't matter for logic, but cleaner to set 0)
         // If Fixed, Release Time = Start + Duration
-        // TEST DURATION: 5 mins * months
-        const durationMs = months > 0 ? (months * 5 * 60 * 1000) : 0;
-        // REAL PRODUCTION LOGIC would be: months * 30 * 24 * 60 * 60 * 1000
+        // REAL PRODUCTION LOGIC: 30 days * 24h * 60m * 60s * 1000ms
+        const durationMs = months > 0 ? (months * 30 * 24 * 60 * 60 * 1000) : 0;
 
         const unlockTime = Number(startTime) + durationMs;
 

@@ -145,6 +145,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             .addSigner(bech32Address)
             // Refund MUST pay strictly to the beneficiary defined in datum
             .pay.ToAddress(beneficiaryAddress, { lovelace: principal })
+            .validTo(Number(Date.now()) + 180000) // Valid for 3 mins
             .complete();
 
         const partialTx = tx.toCBOR();

@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 // Staking tiers with base APY and cumulative bonus per month
 const STAKING_TIERS = [
     { months: 0, baseApy: 3.5, bonusPerMonth: 0, label: 'Flexible', labelEs: 'Flexible' },
-    { months: 1, baseApy: 100, bonusPerMonth: 0, label: 'Test (5m)', labelEs: 'Prueba (5m)' }, // Test Tier (1 = 5 mins in backend)
+
     { months: 1, baseApy: 4.5, bonusPerMonth: 0.2, label: '1 Month', labelEs: '1 Mes' },
     { months: 3, baseApy: 5.5, bonusPerMonth: 0.3, label: '3 Months', labelEs: '3 Meses' },
     { months: 6, baseApy: 6.5, bonusPerMonth: 0.4, label: '6 Months', labelEs: '6 Meses' },
