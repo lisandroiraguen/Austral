@@ -30,6 +30,12 @@ const Staking: React.FC = () => {
     const [isStaking, setIsStaking] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string>('');
 
+    const [activeStake, setActiveStake] = useState<{
+        principalAda: number;
+        releaseTime: number;
+        isLocked: boolean;
+    } | null>(null);
+
     useEffect(() => {
         checkWalletConnection();
 
@@ -41,6 +47,7 @@ const Staking: React.FC = () => {
         const handleWalletDisconnected = () => {
             setConnected(false);
             setAdaBalance('0');
+            setActiveStake(null);
         };
 
         window.addEventListener('wallet-connected', handleWalletConnected);
@@ -59,6 +66,7 @@ const Staking: React.FC = () => {
                 const wallet = await BrowserWallet.enable(walletName);
                 setConnected(true);
                 await fetchADABalance(wallet);
+                await checkActiveStake(wallet);
             }
         } catch (error) {
             console.error('Failed to check wallet connection:', error);
@@ -74,6 +82,40 @@ const Staking: React.FC = () => {
         } catch (error) {
             console.error('Failed to fetch ADA balance:', error);
             setAdaBalance('0');
+        }
+    };
+
+    const checkActiveStake = async (wallet: BrowserWallet) => {
+        try {
+            const changeAddress = await wallet.getChangeAddress();
+            let walletAddress = changeAddress;
+            if (!walletAddress.startsWith("addr")) {
+                try {
+                    const addrObj = deserializeAddress(changeAddress);
+                    if ((addrObj as any).to_bech32) {
+                        walletAddress = (addrObj as any).to_bech32();
+                    } else if ((addrObj as any).toBech32) {
+                        walletAddress = (addrObj as any).toBech32();
+                    }
+                } catch (e) {
+                    console.error("Error converting address for check:", e);
+                }
+            }
+
+            const response = await fetch('/api/CheckStake', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress })
+            });
+
+            if (response.ok) {
+                const { activeStake } = await response.json();
+                if (activeStake) {
+                    setActiveStake(activeStake);
+                }
+            }
+        } catch (error) {
+            console.error("Failed to check active stake:", error);
         }
     };
 
@@ -171,6 +213,9 @@ const Staking: React.FC = () => {
             setStatusMessage("Success!");
             setStakeAmount(''); // Reset amount
 
+            // Refresh Active Stake after success
+            await checkActiveStake(wallet);
+
         } catch (error: any) {
             console.error('Staking failed:', error);
             alert(`❌ Error: ${error.message || error}`);
@@ -178,6 +223,156 @@ const Staking: React.FC = () => {
         } finally {
             setIsStaking(false);
             // Clear message after a delay
+            setTimeout(() => setStatusMessage(''), 5000);
+        }
+    };
+
+    const handleClaim = async () => {
+        setIsStaking(true);
+        setStatusMessage(language === 'es' ? "Reclamando recompensa..." : "Claiming reward...");
+
+        try {
+            const walletName = localStorage.getItem('austral-wallet');
+            if (!walletName) throw new Error("Wallet not connected");
+
+            const wallet = await BrowserWallet.enable(walletName);
+            const changeAddress = await wallet.getChangeAddress();
+
+            let walletAddress = changeAddress;
+            if (!walletAddress.startsWith("addr")) {
+                try {
+                    const addrObj = deserializeAddress(changeAddress);
+                    if ((addrObj as any).to_bech32) {
+                        walletAddress = (addrObj as any).to_bech32();
+                    } else if ((addrObj as any).toBech32) {
+                        walletAddress = (addrObj as any).toBech32();
+                    }
+                } catch (e) { console.error(e); }
+            }
+
+            const response = await fetch('/api/ClaimStakeTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress })
+            });
+
+            if (!response.ok) {
+                const errMsg = await response.text();
+                throw new Error(errMsg);
+            }
+
+            const { partialTx } = await response.json();
+
+            setStatusMessage("Sign Claim...");
+            const signedTx = await wallet.signTx(partialTx, true);
+
+            setStatusMessage("Submitting...");
+            const responseSubmit = await fetch('/api/SubmitTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ signedTxCbor: signedTx })
+            });
+
+            if (!responseSubmit.ok) {
+                const errMsg = await responseSubmit.text();
+                throw new Error(errMsg);
+            }
+            const { txHash } = await responseSubmit.json();
+
+            alert(`✅ Claim Successful!\nTxHash: ${txHash}`);
+            setStatusMessage("Success!");
+            setActiveStake(null);
+
+            await fetchADABalance(wallet);
+            await fetchADABalance(wallet);
+            // await checkActiveStake(wallet);
+
+        } catch (error: any) {
+            console.error("Claim Error:", error);
+            alert(`❌ Claim Failed: ${error.message}`);
+            setStatusMessage("Failed");
+        } finally {
+            setIsStaking(false);
+            setTimeout(() => setStatusMessage(''), 5000);
+        }
+    };
+
+    const handleWithdraw = async () => {
+        if (!confirm(language === 'es'
+            ? "¿Estás seguro? Retirar antes de tiempo significa PERDER todas las recompensas."
+            : "Are you sure? Withdrawing early means forfeiting ALL rewards.")) {
+            return;
+        }
+
+        setIsStaking(true);
+        setStatusMessage(language === 'es' ? "Iniciando retiro..." : "Starting withdrawal...");
+
+        try {
+            const walletName = localStorage.getItem('austral-wallet');
+            if (!walletName) throw new Error("Wallet not connected");
+
+            const wallet = await BrowserWallet.enable(walletName);
+            const changeAddress = await wallet.getChangeAddress();
+
+            let walletAddress = changeAddress;
+            if (!walletAddress.startsWith("addr")) {
+                try {
+                    const addrObj = deserializeAddress(changeAddress);
+                    if ((addrObj as any).to_bech32) {
+                        walletAddress = (addrObj as any).to_bech32();
+                    } else if ((addrObj as any).toBech32) {
+                        walletAddress = (addrObj as any).toBech32();
+                    }
+                } catch (e) {
+                    console.error("Error converting address:", e);
+                }
+            }
+
+            const response = await fetch('/api/CancelStakeTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ walletAddress })
+            });
+
+            if (!response.ok) {
+                const errMsg = await response.text();
+                throw new Error(errMsg);
+            }
+
+            const { partialTx } = await response.json();
+
+            setStatusMessage("Sign withdrawal...");
+
+            const signedTx = await wallet.signTx(partialTx, true);
+
+            setStatusMessage("Submitting...");
+
+            const responseSubmit = await fetch('/api/SubmitTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ signedTxCbor: signedTx })
+            });
+
+            if (!responseSubmit.ok) {
+                const errMsg = await responseSubmit.text();
+                throw new Error(errMsg);
+            }
+            const { txHash } = await responseSubmit.json();
+
+            alert(`✅ Withdrawal Successful!\nTxHash: ${txHash}`);
+            setStatusMessage("Success!");
+            setActiveStake(null); // Clear active stake immediately
+
+            await fetchADABalance(wallet);
+            await fetchADABalance(wallet);
+            // await checkActiveStake(wallet); // Double check
+
+        } catch (error: any) {
+            console.error("Withdraw Error:", error);
+            alert(`❌ Withdraw Failed: ${error.message}`);
+            setStatusMessage("Failed");
+        } finally {
+            setIsStaking(false);
             setTimeout(() => setStatusMessage(''), 5000);
         }
     };
@@ -219,6 +414,62 @@ const Staking: React.FC = () => {
                                     <div className="inline-block px-6 py-3 border-2 border-neon-cyan/50 
                                                     rounded-lg text-neon-cyan/50">
                                         {t.connectWallet}
+                                    </div>
+                                </div>
+                            ) : activeStake ? (
+                                <div className="text-center py-8">
+                                    <div className="mb-6 p-4 bg-retro-dark/80 rounded-lg border border-neon-magenta/50 animate-pulse-slow">
+                                        <h4 className="text-neon-magenta font-display text-xl mb-4 uppercase">
+                                            {language === 'es' ? 'Staking en Progreso' : 'Staking in Progress'}
+                                        </h4>
+                                        <div className="mb-4">
+                                            <p className="text-gray-400 text-sm font-synth uppercase mb-1">
+                                                {language === 'es' ? 'Monto Bloqueado' : 'Locked Amount'}
+                                            </p>
+                                            <p className="text-2xl font-display text-white text-glow-magenta">
+                                                {activeStake.principalAda} ADA
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-400 text-sm font-synth uppercase mb-1">
+                                                {language === 'es' ? 'Desbloqueo' : 'Unlock Time'}
+                                            </p>
+                                            <p className="text-lg font-mono text-neon-cyan">
+                                                {new Date(activeStake.releaseTime).toLocaleString()}
+                                            </p>
+                                            <p className="text-xs text-neon-yellow mt-2">
+                                                {language === 'es' ? 'Podrás retirar después de esta fecha.' : 'You can withdraw after this date.'}
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-6 border-t border-gray-700 pt-4 space-y-3">
+                                            {/* CLAIM BUTTON (Only if Unlocked) */}
+                                            {!activeStake.isLocked && (
+                                                <button
+                                                    onClick={handleClaim}
+                                                    disabled={isStaking}
+                                                    className="w-full py-3 px-4 bg-neon-green/20 border border-neon-green 
+                                                               text-neon-green rounded
+                                                               hover:bg-neon-green hover:text-retro-dark
+                                                               transition-all duration-300 font-display text-sm uppercase
+                                                               disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {language === 'es' ? 'Reclamar y Retirar' : 'Claim & Withdraw'}
+                                                </button>
+                                            )}
+
+                                            {/* EARLY WITHDRAW BUTTON */}
+                                            <button
+                                                onClick={handleWithdraw}
+                                                disabled={isStaking}
+                                                className="w-full py-2 px-4 border border-red-500/50 text-red-400 
+                                                           rounded hover:bg-red-500/10 hover:text-red-300 hover:border-red-400
+                                                           transition-all duration-300 font-synth text-sm uppercase
+                                                           disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                {language === 'es' ? 'Retirar sin Recompensa' : 'Withdraw (No Reward)'}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ) : (

@@ -1,0 +1,324 @@
+{
+  "preamble": {
+    "title": "Austral/staking-contract",
+    "description": "Aiken staking contract for Austral token",
+    "version": "0.0.0",
+    "plutusVersion": "v3",
+    "compiler": {
+      "name": "Aiken",
+      "version": "v1.1.19+unknown"
+    },
+    "license": "Apache-2.0"
+  },
+  "validators": [
+    {
+      "title": "staking.staking.spend",
+      "datum": {
+        "title": "datum",
+        "schema": {
+          "$ref": "#/definitions/types~1DepositDatum"
+        }
+      },
+      "redeemer": {
+        "title": "redeemer",
+        "schema": {
+          "$ref": "#/definitions/staking~1Redeemer"
+        }
+      },
+      "compiledCode": "59031101010029800aba2aba1aba0aab9faab9eaab9dab9a488888896600264653001300800198041804800cdc3a400530080024888966002600460106ea800e26466453001159800980098059baa0028999119912cc004c014c03cdd5000c4cc8966002600e60226ea80062664464b3001323322330020020012259800800c528456600266e3cdd7180d800801c528c4cc008008c07000501620323758603260340106eb8c060c054dd50034566002601460286ea80422b300133712904044bd1bad30053015375401315980099b89375a600a602a6ea80240062b30013371266e0ccdc199b82375a600a602a6ea8024dd6980c180c980c980a9baa00948320052080897a98009bab300530153754007375c60306032603260326032602a6ea80266eb8c060c064c064c064c064c064c054dd5004a0048992cc004c03cc054dd5000c4cdc49bad3019301a301a301a301637540146eb4c064c058dd5000c52820283018301537546030602a6ea8c06001e2941013452820268a50404d1337126eb4c014c054dd5004800a0268a50404d30013756600860286ea800a910100a441004004602a60246ea8004888c8cc88cc008008004896600200300389919912cc004cdc8803801456600266e3c01c00a20030064065133005005301f00440646eb8c060004dd6980c800980d800a0323232330010010062259800800c00e2646644b30013372201200515980099b8f0090028800c01901a44cc014014c08001101a1bae301900137566034002603800280d052f5bded8c0290004590101180a180a80099198008009bac30140042259800800c5300103d87a80008992cc004cdd7980b18099baa00130163013375400f13374a90001980a800a5eb82266006006602e0048088c05400501345900e18091809180918091809000980898071baa3011300e3754004601e60186ea8008c040c040c030dd500245900a4c02cdd5003cc03c00d2225980098020014566002601e6ea802a00716404115980098040014566002601e6ea802a0071640411640348068601a601c0026e1d20003009375400716401c300800130033754011149a26cac8009",
+      "hash": "71fc8e69d81b9fb22e4a0d89278c62ae45a40d0e9b4735d3657b3c29"
+    },
+    {
+      "title": "staking.staking.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "59031101010029800aba2aba1aba0aab9faab9eaab9dab9a488888896600264653001300800198041804800cdc3a400530080024888966002600460106ea800e26466453001159800980098059baa0028999119912cc004c014c03cdd5000c4cc8966002600e60226ea80062664464b3001323322330020020012259800800c528456600266e3cdd7180d800801c528c4cc008008c07000501620323758603260340106eb8c060c054dd50034566002601460286ea80422b300133712904044bd1bad30053015375401315980099b89375a600a602a6ea80240062b30013371266e0ccdc199b82375a600a602a6ea8024dd6980c180c980c980a9baa00948320052080897a98009bab300530153754007375c60306032603260326032602a6ea80266eb8c060c064c064c064c064c064c054dd5004a0048992cc004c03cc054dd5000c4cdc49bad3019301a301a301a301637540146eb4c064c058dd5000c52820283018301537546030602a6ea8c06001e2941013452820268a50404d1337126eb4c014c054dd5004800a0268a50404d30013756600860286ea800a910100a441004004602a60246ea8004888c8cc88cc008008004896600200300389919912cc004cdc8803801456600266e3c01c00a20030064065133005005301f00440646eb8c060004dd6980c800980d800a0323232330010010062259800800c00e2646644b30013372201200515980099b8f0090028800c01901a44cc014014c08001101a1bae301900137566034002603800280d052f5bded8c0290004590101180a180a80099198008009bac30140042259800800c5300103d87a80008992cc004cdd7980b18099baa00130163013375400f13374a90001980a800a5eb82266006006602e0048088c05400501345900e18091809180918091809000980898071baa3011300e3754004601e60186ea8008c040c040c030dd500245900a4c02cdd5003cc03c00d2225980098020014566002601e6ea802a00716404115980098040014566002601e6ea802a0071640411640348068601a601c0026e1d20003009375400716401c300800130033754011149a26cac8009",
+      "hash": "71fc8e69d81b9fb22e4a0d89278c62ae45a40d0e9b4735d3657b3c29"
+    },
+    {
+      "title": "treasury.treasury.spend",
+      "datum": {
+        "title": "datum_opt",
+        "schema": {
+          "$ref": "#/definitions/treasury~1TreasuryDatum"
+        }
+      },
+      "redeemer": {
+        "title": "_redeemer",
+        "schema": {
+          "$ref": "#/definitions/treasury~1TreasuryRedeemer"
+        }
+      },
+      "compiledCode": "5902ca01010029800aba2aba1aba0aab9faab9eaab9dab9a488888896600264653001300800198041804800cc0200092225980099b8748008c01cdd500144ca60026018003300c300d0019b874800122259800980098059baa0078acc004c030dd5003c566002600260166ea800a33001300f300c375400523010301100199198008009bac3010300d375400c44b30010018a60103d87a80008992cc004cdd7980918079baa001006899ba548000cc0440052f5c1133003003301300240346022002807922259800980218071baa00189919912cc004cdc498009bab300530123754600a60246ea800cca60020033758602c602e602e60266ea803290002002222598008014400633001003980c8014c96600266ebcc064c058dd500080344cdc000118029bab300930163754003100240506030004801901645660026466446600400400244b30010018a508acc004cdc79bae30180010038a51899801001180c800a02640586eb0c058c05cc05cc05cc05cc05cc05cc05cc05cc04cdd50061bae30153012375400d14a3132330010013758602c60266ea8030896600200314a1159800992cc004cdc3a400460286ea8006266e3cdd7180c180a9baa001375c6030603260326032603260326032602a6ea80262941013180b980a1baa301730143754600e60286ea8c05c00629462660040046030002809101520208a504040602660206ea8c00cc040dd5000919199119801001000912cc00400600713233225980099b91489000028acc004cdc7a441000028800c01901544cc014014c06c0110151bae3014001375a602a002602e00280a8c8c8cc004004010896600200300389919912cc004cdc8a441000028acc004cdc7a441000028800c01901644cc014014c0700110161bae30150013756602c002603000280b052f5bded8c029000180918079baa0018b201a45900a45900d45900a0c020dd50014590060c020004c00cdd5004452689b2b200201",
+      "hash": "66198c6306d41ee3c88619422a302504021acf703c9e1c495995158e"
+    },
+    {
+      "title": "treasury.treasury.else",
+      "redeemer": {
+        "schema": {}
+      },
+      "compiledCode": "5902ca01010029800aba2aba1aba0aab9faab9eaab9dab9a488888896600264653001300800198041804800cc0200092225980099b8748008c01cdd500144ca60026018003300c300d0019b874800122259800980098059baa0078acc004c030dd5003c566002600260166ea800a33001300f300c375400523010301100199198008009bac3010300d375400c44b30010018a60103d87a80008992cc004cdd7980918079baa001006899ba548000cc0440052f5c1133003003301300240346022002807922259800980218071baa00189919912cc004cdc498009bab300530123754600a60246ea800cca60020033758602c602e602e60266ea803290002002222598008014400633001003980c8014c96600266ebcc064c058dd500080344cdc000118029bab300930163754003100240506030004801901645660026466446600400400244b30010018a508acc004cdc79bae30180010038a51899801001180c800a02640586eb0c058c05cc05cc05cc05cc05cc05cc05cc05cc04cdd50061bae30153012375400d14a3132330010013758602c60266ea8030896600200314a1159800992cc004cdc3a400460286ea8006266e3cdd7180c180a9baa001375c6030603260326032603260326032602a6ea80262941013180b980a1baa301730143754600e60286ea8c05c00629462660040046030002809101520208a504040602660206ea8c00cc040dd5000919199119801001000912cc00400600713233225980099b91489000028acc004cdc7a441000028800c01901544cc014014c06c0110151bae3014001375a602a002602e00280a8c8c8cc004004010896600200300389919912cc004cdc8a441000028acc004cdc7a441000028800c01901644cc014014c0700110161bae30150013756602c002603000280b052f5bded8c029000180918079baa0018b201a45900a45900d45900a0c020dd50014590060c020004c00cdd5004452689b2b200201",
+      "hash": "66198c6306d41ee3c88619422a302504021acf703c9e1c495995158e"
+    }
+  ],
+  "definitions": {
+    "ByteArray": {
+      "dataType": "bytes"
+    },
+    "Int": {
+      "dataType": "integer"
+    },
+    "Option$cardano/address/StakeCredential": {
+      "title": "Option",
+      "anyOf": [
+        {
+          "title": "Some",
+          "description": "An optional value.",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/cardano~1address~1StakeCredential"
+            }
+          ]
+        },
+        {
+          "title": "None",
+          "description": "Nothing.",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "aiken/crypto/ScriptHash": {
+      "title": "ScriptHash",
+      "dataType": "bytes"
+    },
+    "aiken/crypto/VerificationKeyHash": {
+      "title": "VerificationKeyHash",
+      "dataType": "bytes"
+    },
+    "cardano/address/Address": {
+      "title": "Address",
+      "description": "A Cardano `Address` typically holding one or two credential references.\n\n Note that legacy bootstrap addresses (a.k.a. 'Byron addresses') are\n completely excluded from Plutus contexts. Thus, from an on-chain\n perspective only exists addresses of type 00, 01, ..., 07 as detailed\n in [CIP-0019 :: Shelley Addresses](https://github.com/cardano-foundation/CIPs/tree/master/CIP-0019/#shelley-addresses).",
+      "anyOf": [
+        {
+          "title": "Address",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "payment_credential",
+              "$ref": "#/definitions/cardano~1address~1PaymentCredential"
+            },
+            {
+              "title": "stake_credential",
+              "$ref": "#/definitions/Option$cardano~1address~1StakeCredential"
+            }
+          ]
+        }
+      ]
+    },
+    "cardano/address/Credential": {
+      "title": "Credential",
+      "description": "A general structure for representing an on-chain `Credential`.\n\n Credentials are always one of two kinds: a direct public/private key\n pair, or a script (native or Plutus).",
+      "anyOf": [
+        {
+          "title": "VerificationKey",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            }
+          ]
+        },
+        {
+          "title": "Script",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "$ref": "#/definitions/aiken~1crypto~1ScriptHash"
+            }
+          ]
+        }
+      ]
+    },
+    "cardano/address/PaymentCredential": {
+      "title": "PaymentCredential",
+      "description": "A general structure for representing an on-chain `Credential`.\n\n Credentials are always one of two kinds: a direct public/private key\n pair, or a script (native or Plutus).",
+      "anyOf": [
+        {
+          "title": "VerificationKey",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/aiken~1crypto~1VerificationKeyHash"
+            }
+          ]
+        },
+        {
+          "title": "Script",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "$ref": "#/definitions/aiken~1crypto~1ScriptHash"
+            }
+          ]
+        }
+      ]
+    },
+    "cardano/address/StakeCredential": {
+      "title": "StakeCredential",
+      "description": "Represent a type of object that can be represented either inline (by hash)\n or via a reference (i.e. a pointer to an on-chain location).\n\n This is mainly use for capturing pointers to a stake credential\n registration certificate in the case of so-called pointer addresses.",
+      "anyOf": [
+        {
+          "title": "Inline",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "$ref": "#/definitions/cardano~1address~1Credential"
+            }
+          ]
+        },
+        {
+          "title": "Pointer",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": [
+            {
+              "title": "slot_number",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "transaction_index",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "certificate_index",
+              "$ref": "#/definitions/Int"
+            }
+          ]
+        }
+      ]
+    },
+    "cardano/assets/AssetName": {
+      "title": "AssetName",
+      "dataType": "bytes"
+    },
+    "cardano/assets/PolicyId": {
+      "title": "PolicyId",
+      "dataType": "bytes"
+    },
+    "staking/Redeemer": {
+      "title": "Redeemer",
+      "anyOf": [
+        {
+          "title": "Claim",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        },
+        {
+          "title": "Refund",
+          "dataType": "constructor",
+          "index": 1,
+          "fields": []
+        }
+      ]
+    },
+    "treasury/TreasuryDatum": {
+      "title": "TreasuryDatum",
+      "anyOf": [
+        {
+          "title": "TreasuryDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "owner",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "lock_until",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "reward_rate",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "policy_id",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "asset_name",
+              "$ref": "#/definitions/ByteArray"
+            },
+            {
+              "title": "treasury_remaining",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "staking_hash",
+              "$ref": "#/definitions/ByteArray"
+            }
+          ]
+        }
+      ]
+    },
+    "treasury/TreasuryRedeemer": {
+      "title": "TreasuryRedeemer",
+      "anyOf": [
+        {
+          "title": "WithdrawReward",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": []
+        }
+      ]
+    },
+    "types/DepositDatum": {
+      "title": "DepositDatum",
+      "anyOf": [
+        {
+          "title": "DepositDatum",
+          "dataType": "constructor",
+          "index": 0,
+          "fields": [
+            {
+              "title": "beneficiary",
+              "$ref": "#/definitions/cardano~1address~1Address"
+            },
+            {
+              "title": "principal_lovelace",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "reward_percent",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "release_time",
+              "$ref": "#/definitions/Int"
+            },
+            {
+              "title": "reward_policy",
+              "$ref": "#/definitions/cardano~1assets~1PolicyId"
+            },
+            {
+              "title": "reward_asset",
+              "$ref": "#/definitions/cardano~1assets~1AssetName"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

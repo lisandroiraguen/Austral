@@ -7,9 +7,8 @@ import {
 } from "@lucid-evolution/lucid";
 
 // CONSTANTS (Hardcoded from deploy_info.json)
-const STAKING_ADDRESS = "addr_test1wqqkv5d03s6qnr9cgh0303u4ax2wwchum2cnun20sg7ngjqnk08ag";
-const REWARD_POLICY = "9ea5cd066fda8431f52565159c426b1717c8ffc9d7a1fbcda62e3b5c";
-const REWARD_ASSET_NAME = "4175737472616c2d54657374";
+// CONSTANTS
+import { STAKING_ADDRESS, REWARD_POLICY, REWARD_ASSET_NAME } from "../Shared/constants";
 
 // DATUM SCHEMA
 const Credential = Data.Enum([

@@ -46,11 +46,13 @@ validator staking {
 
     let is_paid =
       when redeemer is {
-        Claim -> d.principal_lovelace >= 1000000 && payout_lovelace >= d.principal_lovelace && payout_reward >= expected_reward
-        Refund -> payout_lovelace >= d.principal_lovelace
+        Claim ->
+          d.principal_lovelace >= 1000000 && payout_lovelace >= d.principal_lovelace && payout_reward >= expected_reward && is_released
+        Refund ->
+          payout_lovelace >= d.principal_lovelace
       }
 
-    is_released && is_beneficiary && is_paid
+    is_beneficiary && is_paid
   }
 }
 
