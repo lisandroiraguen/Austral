@@ -1,65 +1,47 @@
-# hello-world
+# Austral Staking Smart Contracts
 
-Write validators in the `validators` folder, and supporting functions in the `lib` folder using `.ak` as a file extension.
+This repository contains the Aiken smart contracts for the Austral Staking system.
+The system allows users to lock ADA for a fixed period and receive rewards in a native token (`Austral-Test`).
 
-```aiken
-validator my_first_validator {
-  spend(_datum: Option<Data>, _redeemer: Data, _output_reference: Data, _context: Data) {
-    True
-  }
-}
-```
+## Core Validators
 
-## Building
+### 1. `staking.ak`
+This contract manages individual user deposits.
+
+**Features:**
+*   **Time Lock:** Funds are locked until a specific `release_time`.
+*   **Beneficiary Check:** Only the designated beneficiary can withdraw the funds.
+*   **Reward Claim:** Successful withdrawals usually require the payout to include both the original Principal ADA and the accrued Reward Tokens.
+*   **Refund Mechanism (New):** If rewards are unavailable, users can trigger a `Refund` to withdraw *only* their Principal ADA (after the time lock expires).
+
+**Redeemers:**
+*   `Claim`: Withdraw Principal + Rewards.
+*   `Refund`: Withdraw Principal only.
+
+### 2. `treasury.ak`
+This contract holds the Reward Tokens and is controlled by the project owner.
+
+**Features:**
+*   **Owner Control:** The treasury funds are secured by the owner's signature.
+*   **Reward Distribution:** Used to fund the user's withdrawal transaction with the necessary reward tokens.
+
+## Deployment
+
+The contracts are compiled using Aiken.
 
 ```sh
 aiken build
 ```
 
-## Configuring
-
-**aiken.toml**
-```toml
-[config.default]
-network_id = 41
-```
-
-Or, alternatively, write conditional environment modules under `env`.
-
 ## Testing
 
-You can write tests in any module using the `test` keyword. For example:
-
-```aiken
-use config
-
-test foo() {
-  config.network_id + 1 == 42
-}
-```
-
-To run all tests, simply do:
+Run the test suite to verify the logic, including the new Refund path:
 
 ```sh
 aiken check
 ```
 
-To run only tests matching the string `foo`, do:
+## Security Considerations
 
-```sh
-aiken check -m foo
-```
-
-## Documentation
-
-If you're writing a library, you might want to generate an HTML documentation for it.
-
-Use:
-
-```sh
-aiken docs
-```
-
-## Resources
-
-Find more on the [Aiken's user manual](https://aiken-lang.org).
+*   **Fund Safety:** The `Refund` mechanism ensures that users' ADA is never permanently locked due to a lack of reward tokens in the Treasury.
+*   **Address Matching:** The contract strictly matches the beneficiary's payment credential. Ensure your wallet interaction scripts construct the address correctly.

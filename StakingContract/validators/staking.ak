@@ -7,13 +7,14 @@ use types.{DepositDatum}
 
 pub type Redeemer {
   Claim
+  Refund
 }
 
 
 validator staking {
   spend(
     datum: Option<DepositDatum>,
-    _redeemer: Redeemer,
+    redeemer: Redeemer,
     _oref: OutputReference,
     tx: Transaction,
   ) {
@@ -44,7 +45,10 @@ validator staking {
       assets.quantity_of(payout.value, d.reward_policy, d.reward_asset)
 
     let is_paid =
-      payout_lovelace >= d.principal_lovelace && payout_reward >= expected_reward
+      when redeemer is {
+        Claim -> payout_lovelace >= d.principal_lovelace && payout_reward >= expected_reward
+        Refund -> payout_lovelace >= d.principal_lovelace
+      }
 
     is_released && is_beneficiary && is_paid
   }
@@ -182,4 +186,44 @@ test fail_wrong_signer() {
 
   let oref = OutputReference { transaction_id: #"", output_index: 0 }
   !staking.spend(Some(datum), Claim, oref, tx)
+}
+
+test success_refund() {
+  let owner_pkh = #"01010101010101010101010101010101010101010101010101010101"
+  let release_time = 1000
+  let principal = 1000000
+  
+  let beneficiary = Address { 
+    payment_credential: VerificationKey(owner_pkh), 
+    stake_credential: None 
+  }
+
+  let datum = DepositDatum {
+    beneficiary: beneficiary,
+    principal_lovelace: principal,
+    reward_percent: 10,
+    release_time: release_time,
+    reward_policy: #"11",
+    reward_asset: #"22",
+  }
+
+  // Value containing ONLY Principal ADA, NO Reward Token
+  let payout_value = assets.from_lovelace(principal)
+
+  let tx = Transaction { 
+    ..transaction.placeholder, 
+    validity_range: interval.after(release_time + 1),
+    extra_signatories: [owner_pkh],
+    outputs: [
+      transaction.Output { 
+        address: beneficiary, 
+        value: payout_value, 
+        datum: NoDatum, 
+        reference_script: None 
+      }
+    ]
+  }
+
+  let oref = OutputReference { transaction_id: #"", output_index: 0 }
+  staking.spend(Some(datum), Refund, oref, tx)
 }
