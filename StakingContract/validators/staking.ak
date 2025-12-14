@@ -34,7 +34,7 @@ validator staking {
 
     // 3. Verify Payout (Principal + Reward)
     // Calculate expected reward: (Principal * Percent) / 100
-    let expected_reward = d.principal_lovelace * d.reward_percent / 100
+   let expected_reward = (d.principal_lovelace * d.reward_percent / 100) / 1000000
 
     // Find the output going to the beneficiary
     expect Some(payout) =

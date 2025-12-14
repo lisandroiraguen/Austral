@@ -1,12 +1,12 @@
 {
   "network": "Preview",
   "staking": {
-    "hash": "76eff3975f21f6c7812cc5aea42f1656535ce6bb0a0522dd9a352a97",
-    "address": "addr_test1wpmwluuhtusld3up9nz6afp0zet9xh8xhv9q2gkang6j49cj7ypg9"
+    "hash": "134866ad1a4efffc18575e65ba4b471ba25d890c7e75f6095d894f74",
+    "address": "addr_test1wqf5se4drf80llqc2a0xtwjtgud6yhvfp3l8tasftky57aqlw0ee9"
   },
   "treasury": {
     "hash": "ec431d8627829d7e21119161d909e8a9a15d648a67bff82ccafc3570",
     "address": "addr_test1wrkyx8vxy7pf6l3pzxgkrkgfaz56zhty3fnml7pvet7r2uqa5mlr9"
   },
-  "timestamp": "2025-12-13T14:05:00.323Z"
+  "timestamp": "2025-12-14T12:41:28.173Z"
 }
