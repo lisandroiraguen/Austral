@@ -8,7 +8,7 @@ export const AUSTRAL_TOKEN: TokenInfo = {
 };
 
 // Dirección del smart contract de staking (se genera al desplegar el contrato)
-export const STAKING_CONTRACT_ADDRESS = 'addr_test1qzfspdp2s5rmecrusgawm7hpkm8qpdksxjtymxz2aa0yyd5lazyya790dh0xwfmcjyjjwc967z62wp8vmkza3pu8l0nq30pne3';
+export const STAKING_CONTRACT_ADDRESS = 'addr_test1wz3xtqqsky23deg4lg828cne9x4nn5s00qpvg2huqvc84qcfvyjf2';
 
 /**
  * Format Cardano address for display (truncated)

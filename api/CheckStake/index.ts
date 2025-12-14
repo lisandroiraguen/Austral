@@ -25,7 +25,8 @@ const Address = Data.Object({
 const DepositDatum = Data.Object({
     beneficiary: Address,
     principal_lovelace: Data.Integer(),
-    reward_percent: Data.Integer(),
+    tier: Data.Integer(),
+    start_time: Data.Integer(),
     release_time: Data.Integer(),
     reward_policy: Data.Bytes(),
     reward_asset: Data.Bytes(),
@@ -72,27 +73,51 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
 
         let activeStake = null;
 
+        const LegacyDatum = Data.Object({
+            beneficiary: Address,
+            principal_lovelace: Data.Integer(),
+            reward_percent: Data.Integer(),
+            release_time: Data.Integer(),
+            reward_policy: Data.Bytes(),
+            reward_asset: Data.Bytes(),
+        });
+
         for (const utxo of utxos) {
             if (utxo.datum) {
+                // Try NEW Datum first
                 try {
                     const datum = Data.from(utxo.datum, DepositDatum) as any;
-
-                    // Check if verification key hash matches
                     const beneficiaryHash = datum.beneficiary.payment_credential.VerificationKey?.hash;
-
                     if (beneficiaryHash === userPkh) {
                         activeStake = {
                             utxoTxHash: utxo.txHash,
                             principalLovelace: Number(datum.principal_lovelace),
                             principalAda: Number(datum.principal_lovelace) / 1_000_000,
                             releaseTime: Number(datum.release_time),
-                            isLocked: Date.now() < Number(datum.release_time)
+                            isLocked: Date.now() < Number(datum.release_time),
+                            type: 'Tiered'
                         };
-                        break; // Found the stake, assuming 1 per user for now
+                        break;
                     }
                 } catch (e) {
-                    // Ignore datums that don't match our schema
-                    // context.log("Failed to parse datum for UTXO:", utxo.txHash);
+                    // Try LEGACY Datum
+                    try {
+                        const datumLegacy = Data.from(utxo.datum, LegacyDatum) as any;
+                        const beneficiaryHash = datumLegacy.beneficiary.payment_credential.VerificationKey?.hash;
+                        if (beneficiaryHash === userPkh) {
+                            activeStake = {
+                                utxoTxHash: utxo.txHash,
+                                principalLovelace: Number(datumLegacy.principal_lovelace),
+                                principalAda: Number(datumLegacy.principal_lovelace) / 1_000_000,
+                                releaseTime: Number(datumLegacy.release_time),
+                                isLocked: Date.now() < Number(datumLegacy.release_time),
+                                type: 'Legacy'
+                            };
+                            break;
+                        }
+                    } catch (e2) {
+                        // Ignore unknown datums
+                    }
                 }
             }
         }

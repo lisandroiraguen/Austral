@@ -94,6 +94,16 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         const StakingDatum = Data.Object({
             beneficiary: Address,
             principal_lovelace: Data.Integer(),
+            tier: Data.Integer(),
+            start_time: Data.Integer(),
+            release_time: Data.Integer(),
+            reward_policy: Data.Bytes(),
+            reward_asset: Data.Bytes(),
+        });
+
+        const LegacyDatum = Data.Object({
+            beneficiary: Address,
+            principal_lovelace: Data.Integer(),
             reward_percent: Data.Integer(),
             release_time: Data.Integer(),
             reward_policy: Data.Bytes(),
@@ -106,7 +116,14 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                 const datum = Data.from(u.datum, StakingDatum) as any;
                 const pkh = datum.beneficiary.payment_credential.VerificationKey?.hash;
                 return pkh === ownerPkh;
-            } catch (e) { return false; }
+            } catch (e) {
+                // Try legacy
+                try {
+                    const datumLegacy = Data.from(u.datum, LegacyDatum) as any;
+                    const pkh = datumLegacy.beneficiary.payment_credential.VerificationKey?.hash;
+                    return pkh === ownerPkh;
+                } catch (e2) { return false; }
+            }
         });
 
         if (!myUtxo) {
@@ -115,7 +132,12 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         }
 
         const refundRedeemer = Data.to(new Constr(1, []));
-        const principal = BigInt(Data.from(myUtxo.datum!, StakingDatum).principal_lovelace as any);
+        let principal = 0n;
+        try {
+            principal = BigInt(Data.from(myUtxo.datum!, StakingDatum).principal_lovelace as any);
+        } catch {
+            principal = BigInt(Data.from(myUtxo.datum!, LegacyDatum).principal_lovelace as any);
+        }
 
         const tx = await lucid.newTx()
             .collectFrom([myUtxo], refundRedeemer)

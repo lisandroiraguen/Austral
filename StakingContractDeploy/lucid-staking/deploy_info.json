@@ -1,16 +1,16 @@
 {
   "network": "Preview",
   "staking": {
-    "hash": "016651af8c34098cb845df17c795e994e762fcdab13e4d4f823d3448",
-    "address": "addr_test1wqqkv5d03s6qnr9cgh0303u4ax2wwchum2cnun20sg7ngjqnk08ag",
-    "refTxHash": "fb83a364712cdbfce3d5159a4e788a8abde7b6fcc734fe2de6564e37d2b58ad2",
+    "hash": "a2658010b11516e515fa0ea3e27929ab39d20f7802c42afc03307a83",
+    "address": "addr_test1wz3xtqqsky23deg4lg828cne9x4nn5s00qpvg2huqvc84qcfvyjf2",
+    "refTxHash": "4396291cda9ad009f07db0192efa030bf1d1a019fe90ed3ae586309ade0a343c",
     "refOutputIndex": 0
   },
   "treasury": {
-    "hash": "66198c6306d41ee3c88619422a302504021acf703c9e1c495995158e",
-    "address": "addr_test1wpnpnrrrqm2pac7gscv5y23sy5zqyxk0wq7fu8zftx23trsygrl54",
-    "refTxHash": "fb83a364712cdbfce3d5159a4e788a8abde7b6fcc734fe2de6564e37d2b58ad2",
+    "hash": "5c7dbabf175229039bfa05e29e09318f972618653a97d5e8857e20cd",
+    "address": "addr_test1wpw8mw4lzafzjqumlgz798sfxx8ewfscv5af040gs4lzpngm87s7w",
+    "refTxHash": "4396291cda9ad009f07db0192efa030bf1d1a019fe90ed3ae586309ade0a343c",
     "refOutputIndex": 1
   },
-  "timestamp": "2025-12-14T15:06:16.180Z"
+  "timestamp": "2025-12-14T22:57:07.486Z"
 }

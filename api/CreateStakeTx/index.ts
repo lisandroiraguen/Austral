@@ -24,7 +24,8 @@ const Address = Data.Object({
 const DepositDatum = Data.Object({
     beneficiary: Address,
     principal_lovelace: Data.Integer(),
-    reward_percent: Data.Integer(),
+    tier: Data.Integer(),
+    start_time: Data.Integer(),
     release_time: Data.Integer(),
     reward_policy: Data.Bytes(),
     reward_asset: Data.Bytes(),
@@ -36,10 +37,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     try {
         const { amount, lockMonths, walletAddress } = req.body;
 
-        if (!amount || !lockMonths || !walletAddress) {
+        if (!amount || !walletAddress) {
             context.res = {
                 status: 400,
-                body: "Missing required fields: amount, lockMonths, walletAddress"
+                body: "Missing required fields: amount, walletAddress"
             };
             return;
         }
@@ -51,36 +52,40 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             throw new Error("Server Misconfiguration: BLOCKFROST_PROJECT_ID missing");
         }
 
-        context.log("CreateStakeTx: Initializing Lucid...");
-
-        // Initialize Lucid (Read-only / Builder mode)
         const networkUrl = network.toLowerCase() === "mainnet"
             ? "https://cardano-mainnet.blockfrost.io/api/v0"
             : `https://cardano-${network.toLowerCase()}.blockfrost.io/api/v0`;
-
-        context.log("CreateStakeTx: Network URL:", networkUrl);
 
         const lucid = await Lucid(
             new Blockfrost(networkUrl, projectId),
             network
         );
 
-        context.log("CreateStakeTx: Lucid initialized.");
-
-        // Select wallet (read-only for address) to act as sender
-        lucid.selectWallet.fromAddress(walletAddress, []); // Empty UTXOs initially, Lucid fetches them
-
+        lucid.selectWallet.fromAddress(walletAddress, []);
         const paymentCred = paymentCredentialOf(walletAddress);
         const ownerPkh = paymentCred.hash;
 
-        // Calculate Times
+        // Calculate Times & Tier
         const startTime = BigInt(Date.now());
-        // For TESTING: 5 minutes per "month" if lockMonths is small, or use real months logic
-        // Original script used 5 mins per month for testing. We'll keep that for consistency with the "Test" tier.
-        const lockDurationMs = Number(lockMonths) * 5 * 60 * 1000;
-        const unlockTime = Number(startTime) + lockDurationMs;
+        const months = Number(lockMonths) || 0; // 0 = Flexible
 
-        // Construct Datum
+        // Map Months to Tier
+        let tier = 0n;
+        if (months === 1) tier = 1n;
+        else if (months === 3) tier = 2n;
+        else if (months === 6) tier = 3n;
+        else if (months === 12) tier = 4n;
+        else tier = 0n; // Default to Flexible
+
+        // Calculate Release Time (Testing: 5 mins per month, Flex = 0)
+        // If Flexible, Release Time is technically 0 or StartTime (doesn't matter for logic, but cleaner to set 0)
+        // If Fixed, Release Time = Start + Duration
+        // TEST DURATION: 5 mins * months
+        const durationMs = months > 0 ? (months * 5 * 60 * 1000) : 0;
+        // REAL PRODUCTION LOGIC would be: months * 30 * 24 * 60 * 60 * 1000
+
+        const unlockTime = Number(startTime) + durationMs;
+
         const beneficiaryAddress = {
             payment_credential: { VerificationKey: { hash: ownerPkh } },
             stake_credential: null,
@@ -91,13 +96,13 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         const datum = Data.to({
             beneficiary: beneficiaryAddress,
             principal_lovelace: lockAmountLovelace,
-            reward_percent: 10n, // 10% Reward (Fixed for now or passed from frontend)
+            tier: tier,
+            start_time: startTime,
             release_time: BigInt(unlockTime),
             reward_policy: REWARD_POLICY,
             reward_asset: REWARD_ASSET_NAME,
         } as any, DepositDatum);
 
-        // Build Transaction
         const tx = await lucid
             .newTx()
             .pay.ToContract(
@@ -107,13 +112,10 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             )
             .complete();
 
-        // Serialize to CBOR
-        const txCbor = tx.toCBOR();
-
         context.res = {
             status: 200,
             body: {
-                txCbor,
+                txCbor: tx.toCBOR(),
                 unlockTime
             }
         };
