@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserWallet } from '@meshsdk/core';
+import { BrowserWallet, deserializeAddress } from '@meshsdk/core';
 import { useLanguage } from '../context/LanguageContext';
 
 // Staking tiers with base APY and cumulative bonus per month
 const STAKING_TIERS = [
     { months: 0, baseApy: 3.5, bonusPerMonth: 0, label: 'Flexible', labelEs: 'Flexible' },
+    { months: 1, baseApy: 100, bonusPerMonth: 0, label: 'Test (5m)', labelEs: 'Prueba (5m)' }, // Test Tier (1 = 5 mins in backend)
     { months: 1, baseApy: 4.5, bonusPerMonth: 0.2, label: '1 Month', labelEs: '1 Mes' },
     { months: 3, baseApy: 5.5, bonusPerMonth: 0.3, label: '3 Months', labelEs: '3 Meses' },
     { months: 6, baseApy: 6.5, bonusPerMonth: 0.4, label: '6 Months', labelEs: '6 Meses' },
@@ -14,6 +15,7 @@ const STAKING_TIERS = [
 // Calculate real APY including cumulative bonus
 const calculateRealApy = (tier: typeof STAKING_TIERS[0]) => {
     if (tier.months === 0) return tier.baseApy;
+    // Test tier or flexible
     // Cumulative bonus: sum of bonus for each month (0.2 + 0.4 + 0.6... for first tier)
     const cumulativeBonus = tier.bonusPerMonth * tier.months;
     return tier.baseApy + cumulativeBonus;
@@ -24,8 +26,9 @@ const Staking: React.FC = () => {
     const [connected, setConnected] = useState(false);
     const [adaBalance, setAdaBalance] = useState<string>('0');
     const [stakeAmount, setStakeAmount] = useState<string>('');
-    const [selectedTier, setSelectedTier] = useState<number>(1); // Default to 1 month
+    const [selectedTier, setSelectedTier] = useState<number>(2); // Default to 1 month (index 2 now)
     const [isStaking, setIsStaking] = useState(false);
+    const [statusMessage, setStatusMessage] = useState<string>('');
 
     useEffect(() => {
         checkWalletConnection();
@@ -79,7 +82,7 @@ const Staking: React.FC = () => {
         const tier = STAKING_TIERS[selectedTier];
         const realApy = calculateRealApy(tier);
 
-        // For flexible, assume 1 month for calculation
+        // For flexible/test, assume 1 month for calculation display
         const months = tier.months === 0 ? 1 : tier.months;
         const reward = amount * (realApy / 100) * (months / 12);
         return reward.toFixed(4);
@@ -89,19 +92,93 @@ const Staking: React.FC = () => {
         if (!stakeAmount || parseFloat(stakeAmount) <= 0) return;
 
         setIsStaking(true);
+        setStatusMessage(t.staking || "Processing..."); // Fallback if t.staking undefined
+
         try {
+            const walletName = localStorage.getItem('austral-wallet');
+            if (!walletName) throw new Error("Wallet not connected");
+
+            const wallet = await BrowserWallet.enable(walletName);
+            const changeAddress = await wallet.getChangeAddress();
+
+            let walletAddress = changeAddress;
+            if (!walletAddress.startsWith("addr")) {
+                try {
+                    // Attempt to convert Hex to Bech32 using Mesh (casting to any to bypass TS check if method exists)
+                    // Mesh's DeserializedAddress object might differ, but let's try standard CSL method name
+                    const addrObj = deserializeAddress(changeAddress);
+                    if ((addrObj as any).to_bech32) {
+                        walletAddress = (addrObj as any).to_bech32();
+                    } else if ((addrObj as any).toBech32) {
+                        walletAddress = (addrObj as any).toBech32();
+                    } else {
+                        console.warn("Could not find to_bech32 method on address object", addrObj);
+                    }
+                } catch (e) {
+                    console.error("Error converting address:", e);
+                }
+            }
+
             const tier = STAKING_TIERS[selectedTier];
-            const realApy = calculateRealApy(tier);
-            // TODO: Implement actual staking logic with smart contract
-            console.log(`Staking ${stakeAmount} ADA for ${tier.months} months at ${realApy}% APY`);
-            // For now, just simulate
-            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            setStatusMessage("Building transaction...");
+
+            // 1. Call API to create transaction
+            const responseCreate = await fetch('/api/CreateStakeTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: stakeAmount,
+                    lockMonths: tier.months,
+                    walletAddress: walletAddress
+                })
+            });
+
+            if (!responseCreate.ok) {
+                const errMsg = await responseCreate.text();
+                throw new Error(`API Error: ${errMsg}`);
+            }
+
+            const { txCbor, unlockTime } = await responseCreate.json();
+
+            setStatusMessage("Please sign transaction...");
+
+            // 2. Sign with connected wallet
+            const signedTxCbor = await wallet.signTx(txCbor, true);
+
+            setStatusMessage("Submitting...");
+
+            // 3. Submit via API
+            const responseSubmit = await fetch('/api/SubmitTx', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ signedTxCbor })
+            });
+
+            if (!responseSubmit.ok) {
+                const errMsg = await responseSubmit.text();
+                throw new Error(`Submit Error: ${errMsg}`);
+            }
+
+            const { txHash } = await responseSubmit.json();
+
+            console.log(`Staking Successful! TxHash: ${txHash}`);
+            console.log(`Unlock Time: ${new Date(unlockTime).toLocaleString()}`);
+
             const tierLabel = language === 'es' ? tier.labelEs : tier.label;
-            alert(`Staking ${stakeAmount} ADA - ${tierLabel} at ${realApy}% APY`);
-        } catch (error) {
+            alert(`✅ Staking Successful!\nAmount: ${stakeAmount} ADA\nTier: ${tierLabel}\nTxHash: ${txHash}`);
+
+            setStatusMessage("Success!");
+            setStakeAmount(''); // Reset amount
+
+        } catch (error: any) {
             console.error('Staking failed:', error);
+            alert(`❌ Error: ${error.message || error}`);
+            setStatusMessage("Failed");
         } finally {
             setIsStaking(false);
+            // Clear message after a delay
+            setTimeout(() => setStatusMessage(''), 5000);
         }
     };
 
@@ -197,7 +274,7 @@ const Staking: React.FC = () => {
                                                 const tierLabel = language === 'es' ? tier.labelEs : tier.label;
                                                 return (
                                                     <button
-                                                        key={tier.months}
+                                                        key={index}
                                                         onClick={() => setSelectedTier(index)}
                                                         className={`p-3 rounded-lg border-2 transition-all duration-300
                                                             ${selectedTier === index
@@ -234,6 +311,13 @@ const Staking: React.FC = () => {
                                         </div>
                                     </div>
 
+                                    {/* Status Message */}
+                                    {statusMessage && (
+                                        <div className="mb-4 text-center text-neon-cyan font-mono text-sm animate-pulse">
+                                            {statusMessage}
+                                        </div>
+                                    )}
+
                                     {/* Stake Button */}
                                     <button
                                         onClick={handleStake}
@@ -245,7 +329,7 @@ const Staking: React.FC = () => {
                                                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
                                                    transition-all duration-300"
                                     >
-                                        {isStaking ? t.staking : t.stakeNow}
+                                        {isStaking ? (statusMessage || t.staking) : t.stakeNow}
                                     </button>
                                 </>
                             )}
