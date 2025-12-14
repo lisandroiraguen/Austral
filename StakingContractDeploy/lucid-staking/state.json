@@ -1,7 +1,7 @@
 {
-  "txHash": "190bcf26eee1411df5810003936bace530fa2f7b05e3aae4cd5a3ea87f9864fc",
+  "txHash": "13fbfe5ecb4fd7a02310fab34dac02dcc20903a748fa7755c67a0fb51e4e06d7",
   "outputIndex": 0,
-  "releaseTime": 1765634192093,
+  "releaseTime": 1765725405002,
   "ownerPkh": "9300b42a8507bce07c823aedfae1b6ce00b6d034964d984aef5e4236",
-  "scriptAddress": "addr_test1wpmwluuhtusld3up9nz6afp0zet9xh8xhv9q2gkang6j49cj7ypg9"
+  "scriptAddress": "addr_test1wqqkv5d03s6qnr9cgh0303u4ax2wwchum2cnun20sg7ngjqnk08ag"
 }

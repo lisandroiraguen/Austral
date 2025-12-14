@@ -30,8 +30,12 @@ const DEPLOY_INFO_PATH = path.join(__dirname, "deploy_info.json");
 if (!fs.existsSync(DEPLOY_INFO_PATH)) throw new Error("deploy_info.json not found. Run deploy.mjs first.");
 const DEPLOY_INFO = JSON.parse(fs.readFileSync(DEPLOY_INFO_PATH, "utf8"));
 
-const LOCK_AMOUNT = 1_000_000n; // 1 ADA
+const LOCK_AMOUNT = 10_000_000n; // 1 ADA
 const LOCK_MONTHS = 1n; // 5 minutes for testing
+
+if (LOCK_AMOUNT < 1_000_000n) {
+    throw new Error(`❌ Minimum Lock Amount is 1 ADA (1,000,000 Lovelace). You tried: ${LOCK_AMOUNT}`);
+}
 
 // ========================================
 // DATUM SCHEMA

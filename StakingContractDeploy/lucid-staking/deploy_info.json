@@ -1,12 +1,16 @@
 {
   "network": "Preview",
   "staking": {
-    "hash": "134866ad1a4efffc18575e65ba4b471ba25d890c7e75f6095d894f74",
-    "address": "addr_test1wqf5se4drf80llqc2a0xtwjtgud6yhvfp3l8tasftky57aqlw0ee9"
+    "hash": "016651af8c34098cb845df17c795e994e762fcdab13e4d4f823d3448",
+    "address": "addr_test1wqqkv5d03s6qnr9cgh0303u4ax2wwchum2cnun20sg7ngjqnk08ag",
+    "refTxHash": "fb83a364712cdbfce3d5159a4e788a8abde7b6fcc734fe2de6564e37d2b58ad2",
+    "refOutputIndex": 0
   },
   "treasury": {
-    "hash": "ec431d8627829d7e21119161d909e8a9a15d648a67bff82ccafc3570",
-    "address": "addr_test1wrkyx8vxy7pf6l3pzxgkrkgfaz56zhty3fnml7pvet7r2uqa5mlr9"
+    "hash": "66198c6306d41ee3c88619422a302504021acf703c9e1c495995158e",
+    "address": "addr_test1wpnpnrrrqm2pac7gscv5y23sy5zqyxk0wq7fu8zftx23trsygrl54",
+    "refTxHash": "fb83a364712cdbfce3d5159a4e788a8abde7b6fcc734fe2de6564e37d2b58ad2",
+    "refOutputIndex": 1
   },
-  "timestamp": "2025-12-14T12:41:28.173Z"
+  "timestamp": "2025-12-14T15:06:16.180Z"
 }

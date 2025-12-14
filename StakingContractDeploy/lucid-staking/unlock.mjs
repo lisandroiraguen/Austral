@@ -159,20 +159,49 @@ async function unlockFunds() {
 
 
     console.log("\n3. Loading scripts...");
-    const scripts = loadPlutusScripts();
+    // const scripts = loadPlutusScripts(); // Legacy local load
 
-    // Verify Staking Address
-    const stakingHash = validatorToScriptHash(scripts.staking);
-    const stakingAddress = validatorToAddress(NETWORK, scripts.staking);
-    console.log(`   Staking Address (Calculated): ${stakingAddress}`);
-    console.log(`   Staking Hash: ${stakingHash}`);
+    // --- REFERENCE SCRIPT LOADING ---
+    const stakingRef = {
+        txHash: DEPLOY_INFO.staking.refTxHash,
+        outputIndex: DEPLOY_INFO.staking.refOutputIndex,
+    };
+    console.log(`   Staking Reference: ${stakingRef.txHash}#${stakingRef.outputIndex}`);
+
+    // We need to fetch the Ref UTXO to pass to "readFrom"
+    const [stakingRefUtxo] = await lucid.utxosByOutRef([stakingRef]);
+    if (!stakingRefUtxo) throw new Error("Staking Reference UTXO not found! Did you deploy?");
+
+    const stakingAddress = DEPLOY_INFO.staking.address;
+    const stakingHash = DEPLOY_INFO.staking.hash;
+    console.log(`   Staking Address (Config): ${stakingAddress}`);
+
+    // Treasury Ref
+    let treasuryRefUtxo;
+    if (DEPLOY_INFO.treasury) {
+        const treasuryRef = {
+            txHash: DEPLOY_INFO.treasury.refTxHash,
+            outputIndex: DEPLOY_INFO.treasury.refOutputIndex,
+        };
+        [treasuryRefUtxo] = await lucid.utxosByOutRef([treasuryRef]);
+        if (!treasuryRefUtxo) throw new Error("Treasury Reference UTXO not found on-chain.");
+        console.log(`   Treasury Reference: ${treasuryRef.txHash}#${treasuryRef.outputIndex}`);
+    } else {
+        throw new Error("Treasury Info missing in deploy_info.json");
+    }
+
+    const treasuryAddress = DEPLOY_INFO.treasury.address;
+
+    console.log("   ✅ Reference Scripts Loaded.");
 
     // Treasury Address from Config
-    const treasuryAddress = DEPLOY_INFO.treasury.address;
-    const treasuryHash = DEPLOY_INFO.treasury.hash;
+    // const treasuryAddress = DEPLOY_INFO.treasury.address; // Already declared above
+    // const treasuryHash = DEPLOY_INFO.treasury.hash; // Already accessible via DEPLOY_INFO
     console.log(`   Treasury Address (Config)   : ${treasuryAddress}`);
+    const treasuryHash = DEPLOY_INFO.treasury.hash; // Keep hash declaration if used later or redundant
 
 
+    /*
     // Simple verification (No parameterization)
     if (scripts.treasury) {
         const calculatedTreasuryHash = validatorToScriptHash(scripts.treasury);
@@ -189,6 +218,7 @@ async function unlockFunds() {
         console.log("   ⚠️ Treasury script not found in plutus.json! We cannot spend from it.");
         throw new Error("Treasury Contract code missing from plutus.json");
     }
+    */
     console.log("\n4. Fetching Staking UTXO...");
     const stakingUtxos = await lucid.utxosAt(stakingAddress);
     const targetUtxo = stakingUtxos.find(
@@ -261,7 +291,7 @@ async function unlockFunds() {
     console.log(`   Looking for Asset: ${rewardUnit}`);
 
     // Calculate Reward Amount
-    const rewardAmount = (principal * rewardPercent) / 100n;
+    const rewardAmount = ((principal * rewardPercent) / 100n) / 1_000_000n;
     console.log(`   Reward Amount: ${rewardAmount}`);
 
     // Find suitable UTXO
@@ -332,8 +362,10 @@ async function unlockFunds() {
     // User Payout
     const payoutValue = {
         lovelace: principal, // We get back our principal
-        [rewardUnit]: rewardAmount
     };
+    if (rewardAmount > 0n) {
+        payoutValue[rewardUnit] = rewardAmount;
+    }
 
     // Transaction
     const safeValidFrom = Math.max(Number(releaseTime), currentTime - 60000);
@@ -343,13 +375,13 @@ async function unlockFunds() {
         const tx = lucid.newTx()
             // Spend Staking Input
             .collectFrom([targetUtxo], claimRedeemer)
-            .attach.SpendingValidator(scripts.staking)
+            // .attach.SpendingValidator(scripts.staking) // OLD
+            .readFrom([stakingRefUtxo]) // NEW: Read Ref Script
 
             // Spend Treasury Input
             .collectFrom([fundingUtxo], withdrawRedeemer)
-            // We need to attach Treasury Script. 
-            // Note: If the hash doesn't match the one derived from 'scripts.treasury', this fails.
-            .attach.SpendingValidator(scripts.treasury)
+            // .attach.SpendingValidator(scripts.treasury) // OLD
+            .readFrom([treasuryRefUtxo]) // NEW: Read Ref Script
 
             // Output to User (Principal + Reward)
             // The constraint is: "output to beneficiary must have X ADA and Y Tokens"

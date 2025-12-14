@@ -42,6 +42,9 @@ async function main() {
     const scriptAddress = deployInfo.treasury.address;
     console.log(`Funding Treasury Address: ${scriptAddress}`);
 
+    const stakingHash = deployInfo.staking.hash;
+    console.log(`Staking Hash for Authorization: ${stakingHash}`);
+
     // Datum exacto esperado por la mayoría de treasuries Aiken 2025
     const TreasuryDatum = Data.Object({
         owner: Data.Bytes(),
@@ -50,6 +53,7 @@ async function main() {
         policy_id: Data.Bytes(),
         asset_name: Data.Bytes(),
         treasury_remaining: Data.Integer(),
+        staking_hash: Data.Bytes(),
     });
 
     const datum = Data.to({
@@ -59,6 +63,7 @@ async function main() {
         policy_id: policyId,
         asset_name: assetNameHex,
         treasury_remaining: 500000n,
+        staking_hash: stakingHash,
     }, TreasuryDatum);
 
     console.log("Construyendo transacción de fondeo...");
