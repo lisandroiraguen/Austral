@@ -28,7 +28,7 @@ const Staking: React.FC = () => {
     const [connected, setConnected] = useState(false);
     const [adaBalance, setAdaBalance] = useState<string>('0');
     const [stakeAmount, setStakeAmount] = useState<string>('');
-    const [selectedTier, setSelectedTier] = useState<number>(2); // Default to 1 month (index 2 now)
+    const [selectedTier, setSelectedTier] = useState<number>(-1); // Default to no selection
     const [isStaking, setIsStaking] = useState(false);
     const [statusMessage, setStatusMessage] = useState<string>('');
 
@@ -145,6 +145,8 @@ const Staking: React.FC = () => {
 
     const calculateReward = () => {
         const amount = parseFloat(stakeAmount) || 0;
+        if (selectedTier === -1) return "0.0000";
+
         const tier = STAKING_TIERS[selectedTier];
         const realApy = calculateRealApy(tier);
 
@@ -156,6 +158,10 @@ const Staking: React.FC = () => {
 
     const handleStake = async () => {
         if (!stakeAmount || parseFloat(stakeAmount) <= 0) return;
+        if (selectedTier === -1) {
+            toast.error("Error", language === 'es' ? "Por favor selecciona un plan." : "Please select a duration.");
+            return;
+        }
 
         setIsStaking(true);
         setStatusMessage(t.staking || "Processing..."); // Fallback if t.staking undefined
@@ -573,8 +579,37 @@ const Staking: React.FC = () => {
                                         <label className="block text-sm text-gray-400 mb-3 font-synth uppercase">
                                             {t.stakeDuration}
                                         </label>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                            {STAKING_TIERS.map((tier, index) => {
+
+                                        {/* Flexible tier - centered on top */}
+                                        <div className="flex justify-center mb-3">
+                                            {(() => {
+                                                const tier = STAKING_TIERS[0];
+                                                const realApy = calculateRealApy(tier);
+                                                const tierLabel = language === 'es' ? tier.labelEs : tier.label;
+                                                return (
+                                                    <button
+                                                        onClick={() => setSelectedTier(0)}
+                                                        className={`w-full p-3 px-8 rounded-lg border-2 transition-all duration-300
+                                                            ${selectedTier === 0
+                                                                ? 'border-neon-green bg-neon-green/20 scale-105 shadow-[0_0_15px_rgba(57,255,20,0.3)]'
+                                                                : 'border-neon-cyan/30 bg-retro-dark/40 hover:border-neon-cyan/60'
+                                                            }`}
+                                                    >
+                                                        <div className="font-display text-xl text-white mb-1">
+                                                            {tierLabel}
+                                                        </div>
+                                                        <div className={`font-synth text-sm ${selectedTier === 0 ? 'text-neon-green' : 'text-neon-cyan'}`}>
+                                                            {realApy.toFixed(1)}% APY
+                                                        </div>
+                                                    </button>
+                                                );
+                                            })()}
+                                        </div>
+
+                                        {/* Fixed tiers - 2x2 grid */}
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {STAKING_TIERS.slice(1).map((tier, idx) => {
+                                                const index = idx + 1; // Offset since we sliced
                                                 const realApy = calculateRealApy(tier);
                                                 const tierLabel = language === 'es' ? tier.labelEs : tier.label;
                                                 return (
@@ -626,7 +661,7 @@ const Staking: React.FC = () => {
                                     {/* Stake Button */}
                                     <button
                                         onClick={handleStake}
-                                        disabled={isStaking || !stakeAmount || parseFloat(stakeAmount) <= 0}
+                                        disabled={isStaking || !stakeAmount || parseFloat(stakeAmount) <= 0 || selectedTier === -1}
                                         className="w-full py-4 font-display text-lg uppercase
                                                    bg-gradient-to-r from-neon-green to-neon-cyan
                                                    text-retro-dark rounded-lg
