@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserWallet, deserializeAddress } from '@meshsdk/core';
 import { useLanguage } from '../context/LanguageContext';
+import { useToast } from '../context/ToastContext';
 
 // Staking tiers with base APY and cumulative bonus per month
 const STAKING_TIERS = [
@@ -23,6 +24,7 @@ const calculateRealApy = (tier: typeof STAKING_TIERS[0]) => {
 
 const Staking: React.FC = () => {
     const { t, language } = useLanguage();
+    const toast = useToast();
     const [connected, setConnected] = useState(false);
     const [adaBalance, setAdaBalance] = useState<string>('0');
     const [stakeAmount, setStakeAmount] = useState<string>('');
@@ -230,7 +232,11 @@ const Staking: React.FC = () => {
             console.log(`Unlock Time: ${new Date(unlockTime).toLocaleString()}`);
 
             const tierLabel = language === 'es' ? tier.labelEs : tier.label;
-            alert(`✅ Staking Successful!\nAmount: ${stakeAmount} ADA\nTier: ${tierLabel}\nTxHash: ${txHash}`);
+            toast.success(
+                language === 'es' ? '¡Staking Exitoso!' : 'Staking Successful!',
+                `${stakeAmount} ADA - ${tierLabel}`,
+                txHash
+            );
 
             setStatusMessage("Success!");
             setStakeAmount(''); // Reset amount
@@ -247,7 +253,10 @@ const Staking: React.FC = () => {
 
         } catch (error: any) {
             console.error('Staking failed:', error);
-            alert(`❌ Error: ${error.message || error}`);
+            toast.error(
+                language === 'es' ? 'Error de Staking' : 'Staking Error',
+                error.message || String(error)
+            );
             setStatusMessage("Failed");
         } finally {
             setIsStaking(false);
@@ -308,7 +317,11 @@ const Staking: React.FC = () => {
             }
             const { txHash } = await responseSubmit.json();
 
-            alert(`✅ Claim Successful!\nTxHash: ${txHash}`);
+            toast.success(
+                language === 'es' ? '¡Reclamo Exitoso!' : 'Claim Successful!',
+                language === 'es' ? 'Tus ADA y recompensas han sido retirados.' : 'Your ADA and rewards have been withdrawn.',
+                txHash
+            );
             setStatusMessage("Success!");
             setActiveStake(null);
 
@@ -318,7 +331,10 @@ const Staking: React.FC = () => {
 
         } catch (error: any) {
             console.error("Claim Error:", error);
-            alert(`❌ Claim Failed: ${error.message}`);
+            toast.error(
+                language === 'es' ? 'Error al Reclamar' : 'Claim Failed',
+                error.message || String(error)
+            );
             setStatusMessage("Failed");
         } finally {
             setIsStaking(false);
@@ -388,7 +404,11 @@ const Staking: React.FC = () => {
             }
             const { txHash } = await responseSubmit.json();
 
-            alert(`✅ Withdrawal Successful!\nTxHash: ${txHash}`);
+            toast.success(
+                language === 'es' ? '¡Retiro Exitoso!' : 'Withdrawal Successful!',
+                language === 'es' ? 'Tus ADA han sido devueltos (sin recompensa).' : 'Your ADA has been returned (no reward).',
+                txHash
+            );
             setStatusMessage("Success!");
             setActiveStake(null); // Clear active stake immediately
 
@@ -398,7 +418,10 @@ const Staking: React.FC = () => {
 
         } catch (error: any) {
             console.error("Withdraw Error:", error);
-            alert(`❌ Withdraw Failed: ${error.message}`);
+            toast.error(
+                language === 'es' ? 'Error al Retirar' : 'Withdrawal Failed',
+                error.message || String(error)
+            );
             setStatusMessage("Failed");
         } finally {
             setIsStaking(false);
