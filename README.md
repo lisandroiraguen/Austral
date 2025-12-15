@@ -2,7 +2,7 @@
 
 A retro-futuristic landing page for the **Austral** token, built on the Cardano blockchain. This project features a distinctive 80s/90s aesthetic, real-time token statistics, and wallet integration.
 
-https://happy-glacier-0d9820b0f.3.azurestaticapps.net
+[Austral Web](https://happy-glacier-0d9820b0f.3.azurestaticapps.net)
 
 ## 🌟 Features
 
