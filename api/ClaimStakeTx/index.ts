@@ -45,7 +45,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         // Address conversion handled by frontend
         const bech32Address: string = walletAddress;
 
-        lucid.selectWallet.fromAddress(bech32Address, []);
+        // Fetch user's UTXOs from Blockfrost - required for building the transaction
+        const userUtxos = await lucid.utxosAt(bech32Address);
+        lucid.selectWallet.fromAddress(bech32Address, userUtxos);
         const paymentCred = paymentCredentialOf(bech32Address);
         const ownerPkh = paymentCred.hash;
 
@@ -100,22 +102,44 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             reward_asset: Data.Bytes(),
         });
 
-        const myStakeUtxo = stakeUtxos.find(u => {
-            if (!u.datum) return false;
+        // Collect all matching UTXOs with their datum info
+        interface MatchedStake {
+            utxo: typeof stakeUtxos[0];
+            datum: any;
+            startTime: bigint;
+        }
+
+        const matchedStakes: MatchedStake[] = [];
+
+        for (const u of stakeUtxos) {
+            if (!u.datum) continue;
             try {
                 const datum = Data.from(u.datum, StakingDatum) as any;
                 const pkh = datum.beneficiary.payment_credential.VerificationKey?.hash;
-                return pkh === ownerPkh;
-            } catch (e) { return false; }
-        });
+                if (pkh === ownerPkh) {
+                    matchedStakes.push({
+                        utxo: u,
+                        datum,
+                        startTime: BigInt(datum.start_time)
+                    });
+                }
+            } catch (e) { /* not a valid datum for this user */ }
+        }
 
-        if (!myStakeUtxo) {
+        if (matchedStakes.length === 0) {
             context.res = { status: 404, body: "No active stake found." };
             return;
         }
 
+        // Sort by start_time descending to get most recent
+        matchedStakes.sort((a, b) => Number(b.startTime - a.startTime));
+        const mostRecent = matchedStakes[0];
+        const myStakeUtxo = mostRecent.utxo;
+        const stakeDatumData = mostRecent.datum;
+
+        context.log(`Found ${matchedStakes.length} stakes. Using most recent: ${myStakeUtxo.txHash}`);
+
         // Deserialize Datum to get details
-        const stakeDatumData = Data.from(myStakeUtxo.datum!, StakingDatum);
         const principal = BigInt(stakeDatumData.principal_lovelace);
         const releaseTime = BigInt(stakeDatumData.release_time);
         const tier = BigInt(stakeDatumData.tier);

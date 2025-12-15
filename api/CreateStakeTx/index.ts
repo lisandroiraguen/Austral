@@ -61,7 +61,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             network
         );
 
-        lucid.selectWallet.fromAddress(walletAddress, []);
+        // Fetch user's UTXOs from Blockfrost - required for building the transaction
+        const userUtxos = await lucid.utxosAt(walletAddress);
+        lucid.selectWallet.fromAddress(walletAddress, userUtxos);
         const paymentCred = paymentCredentialOf(walletAddress);
         const ownerPkh = paymentCred.hash;
 

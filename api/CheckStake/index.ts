@@ -72,6 +72,7 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         const utxos = await lucid.utxosAt(STAKING_ADDRESS);
 
         let activeStake = null;
+        let allStakes: any[] = [];
 
         const LegacyDatum = Data.Object({
             beneficiary: Address,
@@ -89,15 +90,17 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                     const datum = Data.from(utxo.datum, DepositDatum) as any;
                     const beneficiaryHash = datum.beneficiary.payment_credential.VerificationKey?.hash;
                     if (beneficiaryHash === userPkh) {
-                        activeStake = {
+                        const stakeInfo = {
                             utxoTxHash: utxo.txHash,
+                            utxoOutputIndex: utxo.outputIndex,
                             principalLovelace: Number(datum.principal_lovelace),
                             principalAda: Number(datum.principal_lovelace) / 1_000_000,
+                            startTime: Number(datum.start_time),
                             releaseTime: Number(datum.release_time),
                             isLocked: Date.now() < Number(datum.release_time),
                             type: 'Tiered'
                         };
-                        break;
+                        allStakes.push(stakeInfo);
                     }
                 } catch (e) {
                     // Try LEGACY Datum
@@ -105,15 +108,17 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
                         const datumLegacy = Data.from(utxo.datum, LegacyDatum) as any;
                         const beneficiaryHash = datumLegacy.beneficiary.payment_credential.VerificationKey?.hash;
                         if (beneficiaryHash === userPkh) {
-                            activeStake = {
+                            const stakeInfo = {
                                 utxoTxHash: utxo.txHash,
+                                utxoOutputIndex: utxo.outputIndex,
                                 principalLovelace: Number(datumLegacy.principal_lovelace),
                                 principalAda: Number(datumLegacy.principal_lovelace) / 1_000_000,
+                                startTime: 0, // Legacy doesn't have start_time
                                 releaseTime: Number(datumLegacy.release_time),
                                 isLocked: Date.now() < Number(datumLegacy.release_time),
                                 type: 'Legacy'
                             };
-                            break;
+                            allStakes.push(stakeInfo);
                         }
                     } catch (e2) {
                         // Ignore unknown datums
@@ -122,10 +127,33 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             }
         }
 
+        // Log all stakes found before sorting
+        context.log(`Found ${allStakes.length} raw stakes for user:`);
+        allStakes.forEach((s, i) => {
+            context.log(`  [${i}] txHash: ${s.utxoTxHash.substring(0, 16)}... startTime: ${s.startTime} (${new Date(s.startTime).toISOString()}) releaseTime: ${s.releaseTime} (${new Date(s.releaseTime).toISOString()}) type: ${s.type}`);
+        });
+
+        // Sort by start_time descending to get the most recent first
+        allStakes.sort((a, b) => b.startTime - a.startTime);
+
+        context.log(`After sorting (most recent first):`);
+        allStakes.forEach((s, i) => {
+            context.log(`  [${i}] txHash: ${s.utxoTxHash.substring(0, 16)}... startTime: ${s.startTime}`);
+        });
+
+        // Get the most recent stake
+        if (allStakes.length > 0) {
+            activeStake = allStakes[0];
+        }
+
+        context.log(`Selected stake: ${activeStake?.utxoTxHash}`);
+
         context.res = {
             status: 200,
             body: {
-                activeStake
+                activeStake,
+                totalStakes: allStakes.length,
+                allStakes: allStakes // Include all for debugging
             }
         };
 

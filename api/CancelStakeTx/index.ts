@@ -44,7 +44,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
         // Address conversion not needed as frontend sends Bech32
         const bech32Address = walletAddress;
 
-        lucid.selectWallet.fromAddress(bech32Address, []);
+        // Fetch user's UTXOs from Blockfrost - required for building the transaction
+        const userUtxos = await lucid.utxosAt(bech32Address);
+        lucid.selectWallet.fromAddress(bech32Address, userUtxos);
         const paymentCred = paymentCredentialOf(bech32Address);
         const ownerPkh = paymentCred.hash;
 
@@ -110,34 +112,60 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             reward_asset: Data.Bytes(),
         });
 
-        const myUtxo = utxos.find(u => {
-            if (!u.datum) return false;
+        // Collect all matching UTXOs with their start_time
+        interface MatchedUtxo {
+            utxo: typeof utxos[0];
+            startTime: number;
+            principal: bigint;
+            isLegacy: boolean;
+        }
+
+        const matchedUtxos: MatchedUtxo[] = [];
+
+        for (const u of utxos) {
+            if (!u.datum) continue;
             try {
                 const datum = Data.from(u.datum, StakingDatum) as any;
                 const pkh = datum.beneficiary.payment_credential.VerificationKey?.hash;
-                return pkh === ownerPkh;
+                if (pkh === ownerPkh) {
+                    matchedUtxos.push({
+                        utxo: u,
+                        startTime: Number(datum.start_time),
+                        principal: BigInt(datum.principal_lovelace),
+                        isLegacy: false
+                    });
+                }
             } catch (e) {
                 // Try legacy
                 try {
                     const datumLegacy = Data.from(u.datum, LegacyDatum) as any;
                     const pkh = datumLegacy.beneficiary.payment_credential.VerificationKey?.hash;
-                    return pkh === ownerPkh;
-                } catch (e2) { return false; }
+                    if (pkh === ownerPkh) {
+                        matchedUtxos.push({
+                            utxo: u,
+                            startTime: 0, // Legacy has no start_time
+                            principal: BigInt(datumLegacy.principal_lovelace),
+                            isLegacy: true
+                        });
+                    }
+                } catch (e2) { /* ignore */ }
             }
-        });
+        }
 
-        if (!myUtxo) {
+        if (matchedUtxos.length === 0) {
             context.res = { status: 404, body: "No active stake found." };
             return;
         }
 
+        // Sort by start_time descending to get most recent
+        matchedUtxos.sort((a, b) => b.startTime - a.startTime);
+        const mostRecent = matchedUtxos[0];
+        const myUtxo = mostRecent.utxo;
+        const principal = mostRecent.principal;
+
+        context.log(`Found ${matchedUtxos.length} stakes. Using most recent: ${myUtxo.txHash}`);
+
         const refundRedeemer = Data.to(new Constr(1, []));
-        let principal = 0n;
-        try {
-            principal = BigInt(Data.from(myUtxo.datum!, StakingDatum).principal_lovelace as any);
-        } catch {
-            principal = BigInt(Data.from(myUtxo.datum!, LegacyDatum).principal_lovelace as any);
-        }
 
         const tx = await lucid.newTx()
             .collectFrom([myUtxo], refundRedeemer)
@@ -145,6 +173,9 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
             .addSigner(bech32Address)
             // Refund MUST pay strictly to the beneficiary defined in datum
             .pay.ToAddress(beneficiaryAddress, { lovelace: principal })
+            // IMPORTANT: Smart contract requires BOTH validFrom and validTo
+            // It extracts 'now' from validity_range.lower_bound
+            .validFrom(Number(Date.now()) - 60000) // 1 min in past for safety
             .validTo(Number(Date.now()) + 180000) // Valid for 3 mins
             .complete();
 
