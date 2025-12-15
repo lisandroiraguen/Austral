@@ -59,6 +59,28 @@ const Staking: React.FC = () => {
         };
     }, []);
 
+    // Timer to check if stake has unlocked (every 10 seconds)
+    useEffect(() => {
+        if (!activeStake || !activeStake.isLocked) return;
+
+        const checkUnlock = () => {
+            const now = Date.now();
+            if (now >= activeStake.releaseTime) {
+                // Stake is now unlocked!
+                setActiveStake(prev => prev ? { ...prev, isLocked: false } : null);
+                console.log('🔓 Stake unlocked! Claim button should now be green.');
+            }
+        };
+
+        // Check immediately
+        checkUnlock();
+
+        // Then check every 10 seconds
+        const interval = setInterval(checkUnlock, 10000);
+
+        return () => clearInterval(interval);
+    }, [activeStake?.releaseTime, activeStake?.isLocked]);
+
     const checkWalletConnection = async () => {
         try {
             const walletName = localStorage.getItem('austral-wallet');
