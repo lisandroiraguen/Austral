@@ -34,9 +34,14 @@ const Staking: React.FC = () => {
 
     const [activeStake, setActiveStake] = useState<{
         principalAda: number;
+        startTime: number;
         releaseTime: number;
         isLocked: boolean;
     } | null>(null);
+
+    // Progress state
+    const [progress, setProgress] = useState(0);
+    const [timeRemaining, setTimeRemaining] = useState('');
 
     useEffect(() => {
         checkWalletConnection();
@@ -61,27 +66,64 @@ const Staking: React.FC = () => {
         };
     }, []);
 
-    // Timer to check if stake has unlocked (every 10 seconds)
+    // Timer to check if stake has unlocked (every 10 seconds) and update progress
     useEffect(() => {
-        if (!activeStake || !activeStake.isLocked) return;
+        if (!activeStake) return;
 
-        const checkUnlock = () => {
+        const updateStatus = () => {
             const now = Date.now();
-            if (now >= activeStake.releaseTime) {
+
+            // Check unlock
+            if (activeStake.isLocked && now >= activeStake.releaseTime) {
                 // Stake is now unlocked!
                 setActiveStake(prev => prev ? { ...prev, isLocked: false } : null);
                 console.log('🔓 Stake unlocked! Claim button should now be green.');
             }
+
+            // Update Progress Bar & Time Remaining
+            if (activeStake.startTime && activeStake.releaseTime) {
+                const totalDuration = activeStake.releaseTime - activeStake.startTime;
+                const elapsed = now - activeStake.startTime;
+
+                // If totalDuration is 0 or negative (shouldn't happen for fixed term), set 100%
+                let pct = 0;
+                if (totalDuration > 0) {
+                    pct = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+                } else {
+                    pct = 100; // Legacy or instant
+                }
+                setProgress(pct);
+
+                // Time Remaining String
+                const remaining = activeStake.releaseTime - now;
+                if (remaining <= 0) {
+                    setTimeRemaining(language === 'es' ? 'Completado' : 'Completed');
+                } else {
+                    const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+                    if (days > 0) {
+                        const dayStr = language === 'es' ? 'días' : 'days';
+                        const hrStr = language === 'es' ? 'hs' : 'hrs';
+                        setTimeRemaining(`${days} ${dayStr}, ${hours} ${hrStr}`);
+                    } else {
+                        const mins = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+                        const hrStr = language === 'es' ? 'hs' : 'hrs';
+                        const minStr = language === 'es' ? 'min' : 'mins';
+                        setTimeRemaining(`${hours} ${hrStr}, ${mins} ${minStr}`);
+                    }
+                }
+            }
         };
 
         // Check immediately
-        checkUnlock();
+        updateStatus();
 
         // Then check every 10 seconds
-        const interval = setInterval(checkUnlock, 10000);
+        const interval = setInterval(updateStatus, 10000);
 
         return () => clearInterval(interval);
-    }, [activeStake?.releaseTime, activeStake?.isLocked]);
+    }, [activeStake, language]);
 
     const checkWalletConnection = async () => {
         try {
@@ -253,6 +295,7 @@ const Staking: React.FC = () => {
             // Optimistic Update: Show "Staking in Progress" immediately
             setActiveStake({
                 principalAda: parseFloat(stakeAmount),
+                startTime: Date.now(),
                 releaseTime: unlockTime,
                 isLocked: true
             });
@@ -488,15 +531,38 @@ const Staking: React.FC = () => {
                                                 {activeStake.principalAda} ADA
                                             </p>
                                         </div>
-                                        <div>
+
+                                        {/* PROGRESS BAR: Only if startTime exists (not legacy) and isLocked */}
+                                        {activeStake.startTime > 0 && activeStake.isLocked && (
+                                            <div className="mb-4 px-2">
+                                                <div className="flex justify-between text-xs mb-1">
+                                                    <span className="text-neon-cyan/70 font-synth uppercase">
+                                                        {language === 'es' ? 'Tiempo Restante' : 'Time Remaining'}
+                                                    </span>
+                                                    <span className="text-neon-green/90 font-mono">
+                                                        {timeRemaining}
+                                                    </span>
+                                                </div>
+                                                <div className="w-full h-3 bg-retro-dark/80 border border-neon-cyan/30 rounded-full overflow-hidden">
+                                                    <div
+                                                        className="h-full bg-gradient-to-r from-neon-green to-neon-cyan shadow-[0_0_10px_rgba(57,255,20,0.5)] transition-all duration-1000 ease-out"
+                                                        style={{ width: `${progress}%` }}
+                                                    />
+                                                </div>
+                                                <div className="flex justify-between text-[10px] mt-1 text-gray-500 font-mono">
+                                                    <span>{new Date(activeStake.startTime).toLocaleDateString()}</span>
+                                                    <span>{new Date(activeStake.releaseTime).toLocaleDateString()}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Fallback for Legacy/Flexible or just extra info */}
+                                        <div className="mt-4">
                                             <p className="text-gray-400 text-sm font-synth uppercase mb-1">
                                                 {language === 'es' ? 'Desbloqueo' : 'Unlock Time'}
                                             </p>
                                             <p className="text-lg font-mono text-neon-cyan">
                                                 {new Date(activeStake.releaseTime).toLocaleString()}
-                                            </p>
-                                            <p className="text-xs text-neon-yellow mt-2">
-                                                {language === 'es' ? 'Podrás retirar después de esta fecha.' : 'You can withdraw after this date.'}
                                             </p>
                                         </div>
 

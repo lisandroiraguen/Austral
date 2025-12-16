@@ -1,1 +1,9 @@
-
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "",
+        "FUNCTIONS_WORKER_RUNTIME": "node",
+        "BLOCKFROST_PROJECT_ID": "previewFa6oOmhXseqGF3SPwgEiAY9J707G7fQY",
+        "BLOCKFROST_NETWORK": "Preview"
+    }
+}
