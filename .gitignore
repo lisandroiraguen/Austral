@@ -35,6 +35,5 @@ StakingContracDeploy/plutus.json
 /MintingTokenScript/bin
 /MintingTokenScript/obj
 api/local.settings.json
-api/local.settings.json
-api/local.settings.json
-api/local.settings.json
+scripts/.env
+MintingTokenScript/.env
