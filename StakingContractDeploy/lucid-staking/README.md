@@ -39,7 +39,13 @@ NETWORK=Preview
 node lock.mjs
 ```
 
-Bloquea 1 ADA en el contrato por 5 minutos (configurable en `LOCK_MONTHS`).
+Bloquea 1 ADA en el contrato por **5 minutos** (configurable en `LOCK_MONTHS` dentro del script).
+43: 
+44: > [!IMPORTANT]
+45: > **Configuración de Tiempo:**
+46: > - **Scripts Locales (`lock.mjs`):** Configurados para **Testing (5 minutos)**.
+47: > - **Web / API (`CreateStakeTx`):** Configurados para **Producción (30 días)**.
+48: > Si usas este script manual, el bloqueo será corto para pruebas rápidas.
 
 ### Unlock (Desbloquear fondos)
 

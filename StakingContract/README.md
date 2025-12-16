@@ -1,7 +1,7 @@
 # Austral Staking Smart Contracts
 
 This repository contains the Aiken smart contracts for the Austral Staking system.
-The system allows users to lock ADA for a fixed period and receive rewards in a native token (`Austral-Test`).
+The system is built on **Plutus V3** standards and allows users to lock ADA for a fixed period and receive rewards in a native token (`Austral-Test`).
 
 ## Core Validators
 

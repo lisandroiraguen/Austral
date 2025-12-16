@@ -22,6 +22,16 @@ A retro-futuristic landing page for the **Austral** token, built on the Cardano 
 - **Blockchain SDK**: [MeshSDK](https://meshjs.dev/)
 - **Smart Contracts**: [Aiken](https://aiken-lang.org/) (Plutus V3)
 
+## 🏗️ Architecture Overview
+
+1.  **Frontend (Web)**: React application that connects to the user's wallet (Nami, Eternl, etc.) using MeshSDK/Lucid.
+2.  **Backend (API)**: Azure Functions (Node.js) acting as a secure intermediary.
+    *   **Secure Transaction Building**: Handles complex transaction construction (Staking, Claiming) server-side to protect logic and secrets.
+    *   **Production Logic**: configured for **30 Days** staking duration.
+3.  **Smart Contracts**: Plutus V3 scripts (written in Aiken) deployed on Cardano Preview Testnet.
+    *   **Staking Validator**: Manages deposits and time-locks.
+    *   **Treasury Validator**: Securely holds reward tokens.
+
 ## 💰 Staking Rewards
 
 | Duración | APY | Bonus |
